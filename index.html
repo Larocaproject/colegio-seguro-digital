@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Colegio Seguro Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--d:#0b2545;--m:#1d5fa8;--l:#e8f1fb;--g:#1fa971;--r:#c0392b;--t:#1b2733}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;color:var(--t);background:#f6f9fd}
+header{background:var(--d);color:#fff;position:sticky;top:0;z-index:5}
+.bar{max-width:1000px;margin:auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#fff;text-decoration:none;margin-right:auto}
+nav{display:flex;flex-wrap:wrap;gap:4px}nav a{color:#cfe2f7;text-decoration:none;padding:6px 10px;border-radius:8px;font-size:.92rem}
+nav a:hover,nav a.on{background:var(--m);color:#fff}
+main{max-width:1000px;margin:auto;padding:20px 16px 60px}
+.hero{background:linear-gradient(135deg,var(--d),var(--m));color:#fff;border-radius:18px;padding:32px 24px}
+.hero h1{margin:0 0 6px;font-size:2rem}.hero p{max-width:620px}
+.btn{display:inline-block;border:0;border-radius:12px;padding:14px 22px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;background:var(--g);color:#fff;margin:6px 8px 0 0}
+.btn.alt{background:#fff;color:var(--d)}.btn.sm{padding:8px 14px;font-size:.9rem}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:18px 0}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px #0b25451a;border-top:4px solid var(--g)}
+.card h3{margin:0 0 6px;color:var(--d)}.ico{font-size:1.8rem}
+.warn{background:#fff4e5;border-left:5px solid #e67e22;padding:12px 14px;border-radius:8px;margin:14px 0}
+.danger{background:#fdecea;border-left-color:var(--r)}.ok{background:#e6f7ef;border-left:5px solid var(--g);padding:12px 14px;border-radius:8px;margin:14px 0}
+label{display:block;font-weight:600;margin:14px 0 4px;color:var(--d)}
+input,select,textarea{width:100%;padding:11px;border:1.5px solid #b9cce3;border-radius:10px;font:inherit;background:#fff}
+textarea{min-height:120px}.err{color:var(--r);font-size:.85rem;min-height:1em}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+.chip{padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:700;background:var(--l);color:var(--d)}
+.chip.inmediato{background:#fdecea;color:var(--r)}.chip.pendiente{background:#fff4e5;color:#b9650b}.chip.atendido{background:#e6f7ef;color:#127a50}
+.rep{cursor:pointer}.rep:hover{outline:2px solid var(--m)}
+.note{background:var(--l);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:.9rem}
+footer{text-align:center;font-size:.85rem;color:#58687a;padding:20px}
+</style></head><body>
+<header><div class="bar">
+<a class="logo" href="#/"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#1d5fa8" stroke="#fff" stroke-width="2"/><path d="M13 20l5 5 10-11" fill="none" stroke="#3ddc97" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Colegio Seguro Digital</a>
+<nav id="nav"></nav></div></header>
+<main id="app"></main>
+<footer>Prototipo escolar · No es un servicio de emergencias · Sin uso con casos reales hasta que el colegio lo autorice y revise la protección de datos.</footer>
+<script>
+// ====== CONFIGURACIÓN (ver README.md, paso 2) ======
+const SUPABASE_URL = "https://ittnsfiopdkuzerfcyup.supabase.co";       // https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = "sb_publishable_MvIUUMwUqu_OoXj64xmuvA_c8f6alPI";  // clave "anon public"
+// ===================================================
+const OK = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+const db = OK ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const $ = s => document.querySelector(s), app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const TYPES = {acoso:"Acoso escolar o intimidación",convivencia:"Problema de convivencia",danos:"Daños en las instalaciones",riesgo:"Situación de riesgo",acompanamiento:"Solicitud de acompañamiento de un adulto",propuesta:"Propuesta para mejorar el colegio",otro:"Otro"};
+const URG = {proxima:"Puede revisarse próximamente",pronta:"Necesita atención pronta",inmediato:"Existe peligro inmediato"};
+const ST = {pendiente:"Pendiente",revision:"En revisión",atendido:"Atendido"};
+const NOCFG = `<div class="warn danger"><b>Base de datos sin configurar.</b> Esta función no guardará nada hasta completar SUPABASE_URL y SUPABASE_ANON_KEY en index.html (ver README.md). Si ya los pusiste, revisa tu conexión a internet.</div>`;
+const NAV = [["#/","Inicio"],["#/reportar","Reportar"],["#/prevencion","Prevención"],["#/acerca","Acerca"],["#/contacto","Contactos"],["#/admin","Personal"]];
+
+const pages = {
+"": () => `<section class="hero"><h1>Colegio Seguro Digital</h1><p><b>“Tu bienestar importa”</b></p>
+<p>Un espacio para pedir orientación y comunicar situaciones de acoso, conflictos, daños en las instalaciones o riesgo, para que el colegio pueda acompañarte.</p>
+<a class="btn" href="#/reportar">Reportar una situación</a><a class="btn alt" href="#/prevencion">Consejos de prevención</a></section>
+<div class="grid"><div class="card"><div class="ico">📝</div><h3>Reportar</h3>Cuenta lo que pasó con pocos datos y sin pedir información personal.</div>
+<div class="card"><div class="ico">🤝</div><h3>Hablar con un adulto</h3>Puedes indicar si quieres que un adulto de confianza te acompañe.</div>
+<div class="card"><div class="ico">💡</div><h3>Prevenir</h3>Consejos para convivir mejor y cuidar el colegio.</div>
+<div class="card"><div class="ico">🔒</div><h3>Revisión privada</h3>Solo el personal autorizado ve los reportes.</div></div>
+<h2>¿Cómo funciona?</h2><ol><li>Envías el reporte desde el formulario.</li><li>Queda guardado en una base de datos protegida.</li><li>El personal autorizado lo revisa y cambia su estado: pendiente, en revisión o atendido.</li><li>El colegio decide el acompañamiento y las acciones.</li></ol>
+<div class="warn danger"><b>No es un servicio de emergencias.</b> Si hay peligro inmediato, busca ahora mismo a un docente, coordinador o adulto responsable cerca de ti.</div>`,
+
+reportar: () => `<h1>Reportar una situación</h1>${OK?"":NOCFG}
+<div class="warn danger"><b>¿Peligro inmediato?</b> Esta página no es un servicio de emergencias. Busca presencialmente a un adulto responsable ahora.</div>
+<form id="f" novalidate><label>Tipo de situación</label><select name="type"><option value="">Selecciona…</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><div class="err" data-e="type"></div>
+<label>Lugar donde ocurrió</label><select name="place"><option value="">Selecciona…</option>${["Salón","Patio","Baños","Pasillos","Biblioteca","Otro espacio"].map(p=>`<option>${p}</option>`).join("")}</select><div class="err" data-e="place"></div>
+<label>Momento en que ocurrió</label><input type="datetime-local" name="occurred_at"><div class="err" data-e="occurred_at"></div>
+<label>Descripción (mín. 10 caracteres)</label><textarea name="description" maxlength="2000" placeholder="Describe qué pasó. No es necesario incluir nombres."></textarea><div class="err" data-e="description"></div>
+<label>Nivel de atención</label><select name="urgency"><option value="">Selecciona…</option>${Object.entries(URG).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><div class="err" data-e="urgency"></div><div id="urgw"></div>
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px">
+<label style="font-weight:400"><input type="checkbox" name="wants_adult" style="width:auto"> Quiero hablar con un adulto de confianza</label>
+<div class="warn"><b>Aviso de privacidad:</b> no escribas contraseñas ni datos personales innecesarios. Este formulario no pide tu nombre, pero <b>no garantiza anonimato absoluto</b>: si mencionas nombres o detalles identificables en el texto, el personal autorizado podrá verlos. Los reportes no son públicos.</div>
+<button class="btn" id="sb" ${OK?"":"disabled"}>Enviar reporte</button><div id="msg"></div></form>`,
+
+prevencion: () => `<h1>Prevención</h1><div class="grid">
+${[["🛡️","Prevenir el acoso","No te burles ni compartas burlas; no te quedes callado si ves maltrato; acompaña a quien se sienta solo; recuerda que una broma que lastima no es broma."],
+["🕊️","Resolver conflictos","Respira antes de responder, habla en primera persona (“me sentí…”), escucha sin interrumpir y pide mediación a un docente si no se resuelve."],
+["🧑‍🏫","Pedir ayuda","Busca a un docente, orientador o coordinador de confianza. Di qué pasó, dónde y cuándo. Pedir ayuda no es ‘chismosear’, es cuidar."],
+["🏫","Cuidar las instalaciones","Deja los espacios limpios, reporta daños en lugar de ignorarlos y no rayes ni dañes mobiliario."],
+["🔐","Privacidad digital","No compartas contraseñas, fotos o datos de otros sin permiso; usa claves distintas y bloquea y reporta a quien te acose en línea."]]
+.map(([i,t,x])=>`<div class="card"><div class="ico">${i}</div><h3>${t}</h3>${x}</div>`).join("")}</div>
+<a class="btn" href="#/reportar">Reportar una situación</a>`,
+
+acerca: () => `<h1>Acerca del proyecto</h1>
+<div class="card"><h3>Problema</h3>Muchas situaciones de acoso, conflicto o daño en el colegio no se comunican por miedo, vergüenza o falta de un canal claro.</div><br>
+<div class="card"><h3>Justificación</h3>Un canal digital sencillo y privado puede ayudar a que el colegio conozca y atienda a tiempo estas situaciones.</div><br>
+<div class="card"><h3>Objetivo general</h3>Facilitar la comunicación segura de situaciones de convivencia y seguridad escolar mediante una aplicación web.</div><br>
+<div class="card"><h3>Objetivos específicos</h3><ul><li>Recibir reportes con un formulario validado.</li><li>Almacenarlos en una base de datos protegida.</li><li>Permitir su seguimiento por personal autorizado.</li><li>Ofrecer orientación preventiva.</li></ul></div><br>
+<div class="card"><h3>Beneficios</h3>Respuesta más rápida, más confianza de los estudiantes, mejor cuidado de las instalaciones y datos para mejorar la convivencia.</div><br>
+<div class="card"><h3>Procedimiento de revisión (propuesta para el colegio)</h3><ol><li>Una persona designada revisa el panel todos los días hábiles.</li><li>Se priorizan los reportes de “peligro inmediato” y los que piden hablar con un adulto.</li><li>Se pasa el caso a “En revisión” y se anota cada acción en las notas privadas.</li><li>Se activa la ruta de convivencia o acompañamiento definida por el colegio.</li><li>Se marca “Atendido” con una nota de cierre.</li><li>Se revisan las estadísticas cada periodo y se borran los datos según la política de tratamiento de datos.</li></ol>El colegio debe ajustarlo a su manual de convivencia.</div>`,
+
+contacto: async () => {
+  let s = {}; if (OK) { const {data} = await db.from("school_settings").select(); (data||[]).forEach(r=>s[r.key]=r.value); }
+  const v = k => s[k] ? esc(s[k]) : "<i>Pendiente de completar por el colegio</i>";
+  return `<h1>Contactos y ayuda</h1>${OK?"":NOCFG}<div class="card"><p><b>Colegio:</b> ${v("school_name")}</p><p><b>Horarios de atención:</b> ${v("hours")}</p><p><b>Orientador/Coordinador:</b> ${v("contact_name")}</p><p><b>Canal de contacto:</b> ${v("contact_channel")}</p></div>
+<div class="warn">Estos datos los edita el personal autorizado desde el panel. No se incluyen contactos inventados.</div>`;
+},
+admin: async () => {
+  if (!OK) return `<h1>Panel del personal</h1>${NOCFG}`;
+  const {data:{session}} = await db.auth.getSession();
+  if (!session) return `<h1>Panel del personal</h1><form id="lf"><label>Correo</label><input type="email" name="e" required><label>Contraseña</label><input type="password" name="p" required><button class="btn">Ingresar</button><div id="msg"></div></form>`;
+  const {data:st} = await db.from("staff").select().maybeSingle();
+  if (!st) return `<h1>Panel del personal</h1><div class="warn danger">Esta cuenta no está autorizada como personal del colegio.</div><button class="btn sm" id="out">Salir</button>`;
+  return `<h1>Panel del personal <button class="btn sm alt" id="out">Salir</button></h1><div id="stats"></div>
+<div class="row"><input id="q" placeholder="Buscar en descripción"><select id="ft"><option value="">Todas las categorías</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
+<select id="fs"><option value="">Todos los estados</option>${Object.entries(ST).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><input type="date" id="fd1" title="Desde"><input type="date" id="fd2" title="Hasta"></div>
+<div id="list" style="margin-top:14px"></div><div id="detail"></div>
+<h2>Datos de contacto del colegio</h2><form id="cf">${[["school_name","Nombre oficial"],["hours","Horarios"],["contact_name","Orientador/Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l])=>`<label>${l}</label><input name="${k}" maxlength="200">`).join("")}<button class="btn sm">Guardar contactos</button><div id="cmsg"></div></form>`;
+}};
+
+async function render(){
+  const h = location.hash.replace("#/","").split("?")[0];
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#/"+h));
+  app.innerHTML = "Cargando…";
+  try { app.innerHTML = await (pages[h] || pages[""])(); } catch(e){ app.innerHTML = `<div class="warn danger">Error: ${esc(e.message)}</div>`; return; }
+  scrollTo(0,0);
+  if (h==="reportar") bindForm(); if (h==="admin") bindAdmin();
+}
+$("#nav").innerHTML = NAV.map(([h,t])=>`<a href="${h}">${t}</a>`).join("");
+addEventListener("hashchange", render); render();
+
+function bindForm(){
+  const f = $("#f"); if(!f) return;
+  f.elements.urgency.onchange = () => $("#urgw").innerHTML = f.elements.urgency.value==="inmediato" ? `<div class="warn danger"><b>Peligro inmediato:</b> este formulario no se revisa en el momento. Busca ahora mismo a un docente, coordinador o adulto responsable que esté cerca.</div>` : "";
+  f.onsubmit = async ev => {
+    ev.preventDefault(); const d = new FormData(f), e = {};
+    if(d.get("website")) return;
+    let last=0; try{last=+localStorage.getItem("csd_last")||0}catch(_){}
+    if(Date.now()-last<30000){ $("#msg").innerHTML=`<div class="warn">Espera unos segundos antes de enviar otro reporte.</div>`; return; }
+    document.querySelectorAll("[data-e]").forEach(x=>x.textContent="");
+    ["type","place","urgency"].forEach(k=>{ if(!d.get(k)) e[k]="Selecciona una opción."; });
+    if(!d.get("occurred_at")) e.occurred_at="Indica cuándo ocurrió."; else if(new Date(d.get("occurred_at"))>new Date()) e.occurred_at="La fecha no puede ser futura.";
+    if((d.get("description")||"").trim().length<10) e.description="Escribe al menos 10 caracteres.";
+    for(const k in e) f.querySelector(`[data-e=${k}]`).textContent=e[k];
+    if(Object.keys(e).length) return;
+    $("#sb").disabled = true;
+    const {error} = await db.from("reports").insert({type:d.get("type"),place:d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult")});
+    $("#sb").disabled = false;
+    if(error) $("#msg").innerHTML = `<div class="warn danger">No se pudo enviar: ${esc(error.message)}. Intenta de nuevo o habla con un adulto.</div>`;
+    else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#urgw").innerHTML=""; $("#msg").innerHTML = `<div class="ok"><b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
+  };
+}
+
+function bindAdmin(){
+  $("#out") && ($("#out").onclick = async()=>{await db.auth.signOut();render();});
+  const lf = $("#lf");
+  if (lf) lf.onsubmit = async ev => { ev.preventDefault();
+    const {error} = await db.auth.signInWithPassword({email:lf.e.value,password:lf.p.value});
+    error ? $("#msg").innerHTML = `<div class="warn danger">${esc(error.message)}</div>` : render(); };
+  if (!$("#list")) return;
+  const load = async () => {
+    let q = db.from("reports").select().order("created_at",{ascending:false});
+    if($("#ft").value) q=q.eq("type",$("#ft").value); if($("#fs").value) q=q.eq("status",$("#fs").value);
+    if($("#fd1").value) q=q.gte("created_at",$("#fd1").value); if($("#fd2").value) q=q.lte("created_at",$("#fd2").value+"T23:59:59");
+    if($("#q").value.trim()) q=q.ilike("description","%"+$("#q").value.trim().replace(/[%,]/g," ")+"%");
+    const {data,error} = await q; if(error) return $("#list").innerHTML=`<div class="warn danger">${esc(error.message)}</div>`;
+    $("#list").innerHTML = data.length ? data.map(r=>`<div class="card rep" data-id="${r.id}"><span class="chip">${TYPES[r.type]}</span> <span class="chip ${r.status}">${ST[r.status]}</span> <span class="chip ${r.urgency}">${URG[r.urgency]}</span>${r.wants_adult?' <span class="chip">Pide adulto</span>':""}<p>${esc(r.description.slice(0,140))}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)}</small></div>`).join("") : "<p>No hay reportes con esos filtros.</p>";
+    document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>open(data.find(r=>r.id===c.dataset.id)));
+  };
+  const stats = async()=>{ const {data} = await db.rpc("report_stats"); if(!data) return;
+    $("#stats").innerHTML = `<div class="grid"><div class="card"><h3>${data.total}</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3>${data.por_estado[k]||0}</h3>${v}</div>`).join("")}</div>`; };
+  const open = async r => {
+    const {data:ns} = await db.from("notes").select().eq("report_id",r.id).order("created_at");
+    $("#detail").innerHTML = `<div class="card" style="margin-top:14px"><h3>${TYPES[r.type]}</h3><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
+<label>Estado</label><select id="ns">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===r.status?"selected":""}>${v}</option>`).join("")}</select>
+<h4>Notas privadas</h4>${(ns||[]).map(n=>`<div class="note">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas.</small>"}
+<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px"></textarea><button class="btn sm" id="sn">Guardar nota</button></div>`;
+    $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?alert(error.message):(load(),stats()); };
+    $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?alert(error.message):open(r); };
+    $("#detail").scrollIntoView({behavior:"smooth"});
+  };
+  ["q","ft","fs","fd1","fd2"].forEach(i=>$("#"+i).oninput=load);
+  load(); stats();
+  db.from("school_settings").select().then(({data})=>(data||[]).forEach(r=>{const i=$("#cf")?.elements[r.key]; if(i) i.value=r.value||"";}));
+  $("#cf").onsubmit = async ev => { ev.preventDefault();
+    const rows = ["school_name","hours","contact_name","contact_channel"].map(k=>({key:k,value:$("#cf").elements[k].value.trim()}));
+    const {error} = await db.from("school_settings").upsert(rows);
+    $("#cmsg").innerHTML = error ? `<div class="warn danger">${esc(error.message)}</div>` : `<div class="ok">Contactos guardados.</div>`; };
+}
+</script></body></html>
