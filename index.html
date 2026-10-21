@@ -2,142 +2,143 @@
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Colegio Seguro Digital</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--d:#0b2545;--m:#1d5fa8;--l:#e8f1fb;--g:#1fa971;--r:#c0392b;--t:#1b2733}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;color:var(--t);background:#f6f9fd}
-header{background:var(--d);color:#fff;position:sticky;top:0;z-index:5}
-.bar{max-width:1000px;margin:auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#fff;text-decoration:none;margin-right:auto}
-nav{display:flex;flex-wrap:wrap;gap:4px}nav a{color:#cfe2f7;text-decoration:none;padding:6px 10px;border-radius:8px;font-size:.92rem}
-nav a:hover,nav a.on{background:var(--m);color:#fff}
-main{max-width:1000px;margin:auto;padding:20px 16px 60px}
-.hero{background:linear-gradient(135deg,var(--d),var(--m));color:#fff;border-radius:18px;padding:32px 24px}
-.hero h1{margin:0 0 6px;font-size:2rem}.hero p{max-width:620px}
-.btn{display:inline-block;border:0;border-radius:12px;padding:14px 22px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;background:var(--g);color:#fff;margin:6px 8px 0 0}
-.btn.alt{background:#fff;color:var(--d)}.btn.sm{padding:8px 14px;font-size:.9rem}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:18px 0}
-.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px #0b25451a;border-top:4px solid var(--g)}
-.card h3{margin:0 0 6px;color:var(--d)}.ico{font-size:1.8rem}
-.warn{background:#fff4e5;border-left:5px solid #e67e22;padding:12px 14px;border-radius:8px;margin:14px 0}
-.danger{background:#fdecea;border-left-color:var(--r)}.ok{background:#e6f7ef;border-left:5px solid var(--g);padding:12px 14px;border-radius:8px;margin:14px 0}
-label{display:block;font-weight:600;margin:14px 0 4px;color:var(--d)}
-input,select,textarea{width:100%;padding:11px;border:1.5px solid #b9cce3;border-radius:10px;font:inherit;background:#fff}
-textarea{min-height:120px}.err{color:var(--r);font-size:.85rem;min-height:1em}
-.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
-.chip{padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:700;background:var(--l);color:var(--d)}
-.chip.inmediato{background:#fdecea;color:var(--r)}.chip.pendiente{background:#fff4e5;color:#b9650b}.chip.atendido{background:#e6f7ef;color:#127a50}
-.rep{cursor:pointer}.rep:hover{outline:2px solid var(--m)}
-.note{background:var(--l);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:.9rem}
-footer{text-align:center;font-size:.85rem;color:#58687a;padding:20px}
-
-/* ===== Mejoras visuales y animaciones ===== */
-html{scroll-behavior:smooth}
-body{font-family:"Poppins",system-ui,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 10% 0,#dbeafe 0,transparent 40%),radial-gradient(circle at 100% 20%,#d1fae5 0,transparent 35%),#f6f9fd;background-attachment:fixed}
-header{background:rgba(11,37,69,.92);backdrop-filter:blur(10px);box-shadow:0 4px 18px #0b254533}
-.logo svg{animation:pulse 3s ease-in-out infinite;filter:drop-shadow(0 0 6px #3ddc9780)}
-nav a{transition:all .25s}nav a:hover{transform:translateY(-2px)}nav a.on{box-shadow:0 3px 10px #1d5fa8aa}
-@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
-@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
-@keyframes flow{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 0 #c0392b55}50%{box-shadow:0 0 0 10px #c0392b00}}
-#app>*{animation:up .55s both}#app>*:nth-child(2){animation-delay:.08s}#app>*:nth-child(3){animation-delay:.16s}#app>*:nth-child(4){animation-delay:.24s}
-.grid .card,#list .card{animation:up .55s both}
-.grid .card:nth-child(2){animation-delay:.1s}.grid .card:nth-child(3){animation-delay:.2s}.grid .card:nth-child(4){animation-delay:.3s}.grid .card:nth-child(5){animation-delay:.4s}
-.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#0b2545,#1d5fa8,#127a50,#0b2545);background-size:300% 300%;animation:flow 14s ease infinite,up .6s both;box-shadow:0 14px 34px #0b254544;padding:44px 28px}
-.hero::after{content:"";position:absolute;right:-60px;bottom:-80px;width:260px;height:260px;border-radius:50%;background:#ffffff14}
-.hero .floaty{position:absolute;right:26px;top:22px;opacity:.9;animation:floaty 5s ease-in-out infinite}
-.hero h1{font-size:2.3rem;position:relative}.hero p,.hero a{position:relative}
-.card{transition:transform .25s,box-shadow .25s;border-radius:16px}
-.card:hover{transform:translateY(-6px);box-shadow:0 14px 28px #0b254528}
-.ico{display:inline-block;transition:transform .3s}.card:hover .ico{transform:scale(1.25) rotate(-8deg)}
-.btn{transition:transform .2s,box-shadow .2s,filter .2s;box-shadow:0 6px 14px #1fa97144}
-.btn:hover:not(:disabled){transform:translateY(-3px);filter:brightness(1.08);box-shadow:0 10px 20px #1fa97155}
-.btn:active:not(:disabled){transform:translateY(0) scale(.97)}.btn.alt{box-shadow:0 6px 14px #0b254522}.btn:disabled{background:#9db3c9;box-shadow:none;cursor:not-allowed}
-.danger-btn{background:var(--r);box-shadow:0 6px 14px #c0392b44}
-input,select,textarea{transition:border-color .2s,box-shadow .2s}
-input:focus,select:focus,textarea:focus{outline:0;border-color:var(--m);box-shadow:0 0 0 4px #1d5fa833}
-.warn.danger{animation:glow 2.4s infinite}
-.chip{transition:transform .2s}.chip:hover{transform:scale(1.08)}
-.rep{border-top-color:var(--m)}.rep:hover{outline:0;border-top-color:var(--g)}
-.cnt{font-size:2rem;margin:0}
+:root{--h:#0b2545;--m:#2563eb;--g:#10b981;--r:#e11d48;--bg:#f3f7fd;--cd:#fff;--tx:#14202e;--mu:#5b6b7e;--bd:#dce6f2;--l:#e8f0fe}
+[data-theme=dark]{--h:#e8eef7;--bg:#08111f;--cd:#0f1c32;--tx:#e8eef7;--mu:#9bb0c8;--bd:#1e3050;--l:#16294a}
+*{box-sizing:border-box}[hidden]{display:none!important}html{scroll-behavior:smooth}
+body{margin:0;font-family:Poppins,system-ui,Segoe UI,Arial,sans-serif;color:var(--tx);background:var(--bg);transition:background .3s}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(600px 400px at 8% 0,#2563eb22,transparent),radial-gradient(500px 400px at 100% 30%,#10b98122,transparent)}
+header{position:sticky;top:10px;z-index:10;margin:10px auto 0;max-width:1040px;padding:0 10px}
+.bar{display:flex;align-items:center;gap:8px;background:rgba(10,24,48,.82);backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:20px;padding:8px 12px;box-shadow:0 10px 30px #0b254544}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#fff;text-decoration:none;margin-right:auto;white-space:nowrap}
+.logo svg{animation:pulse 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #34d39988)}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}nav a{color:#c5d8f2;text-decoration:none;padding:7px 12px;border-radius:12px;font-size:.88rem;white-space:nowrap;transition:.25s}
+nav a:hover{background:#ffffff1c;color:#fff}nav a.on{background:linear-gradient(135deg,var(--m),var(--g));color:#fff;box-shadow:0 4px 14px #2563eb66}
+.tg{border:0;background:#ffffff1c;color:#fff;border-radius:12px;width:36px;height:36px;cursor:pointer;font-size:1.05rem;transition:.25s}.tg:hover{transform:rotate(20deg) scale(1.1)}
+main{max-width:1040px;margin:auto;padding:22px 16px 60px}h1,h2,h3,h4{color:var(--h)}h1{font-weight:800;letter-spacing:-.02em}
+.hero{position:relative;overflow:hidden;border-radius:28px;padding:54px 32px;color:#fff;background:#0b2545;box-shadow:0 24px 50px #0b254555}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;animation:blob 12s ease-in-out infinite}
+.hero::before{width:320px;height:320px;background:#2563eb;left:-60px;top:-80px}.hero::after{width:300px;height:300px;background:#10b981;right:-40px;bottom:-110px;animation-delay:-6s}
+.hero>*{position:relative;z-index:1}.hero h1{color:#fff;font-size:clamp(2rem,6vw,3.4rem);margin:10px 0;background:linear-gradient(90deg,#fff,#a7f3d0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:600px;color:#dbe8f9;font-size:1.05rem}.badge{display:inline-block;background:#ffffff1f;border:1px solid #ffffff33;border-radius:99px;padding:5px 14px;font-size:.82rem}
+.hero .floaty{position:absolute;right:34px;top:30px;z-index:1;animation:floaty 5s ease-in-out infinite;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pills span{font-size:.82rem;background:#ffffff14;border-radius:99px;padding:5px 12px}
+.btn{display:inline-block;border:0;border-radius:14px;padding:14px 24px;font:600 1rem Poppins,sans-serif;cursor:pointer;text-decoration:none;color:#fff;margin:8px 8px 0 0;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 8px 20px #10b98155;transition:.25s}
+.btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 14px 26px #10b98166}.btn:active:not(:disabled){transform:scale(.97)}
+.btn.alt{background:#ffffff;color:#0b2545;box-shadow:0 8px 20px #0b254533}.btn.sm{padding:9px 16px;font-size:.88rem;margin:0}
+.btn.danger-btn{background:linear-gradient(135deg,#f43f5e,#be123c);box-shadow:0 8px 18px #e11d4855}.btn:disabled{background:#9db3c9;box-shadow:none;cursor:not-allowed}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:22px 0}
+.card,.panel{background:var(--cd);border:1px solid var(--bd);border-radius:22px;padding:22px;box-shadow:0 4px 18px #0b25450d;transition:transform .3s,box-shadow .3s,border-color .3s}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 34px #0b254522;border-color:var(--m)}.card h3{margin:0 0 6px}
+.ico{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;font-size:1.6rem;background:linear-gradient(135deg,var(--l),#d1fae5);margin-bottom:10px;transition:.3s}.card:hover .ico{transform:scale(1.15) rotate(-6deg)}
+.steps{counter-reset:s;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.step{counter-increment:s;background:var(--cd);border:1px solid var(--bd);border-radius:20px;padding:20px 18px;position:relative}
+.step::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--m),var(--g));color:#fff;font-weight:700;margin-bottom:8px}
+.warn,.ok{color:#1b2733;border-radius:14px;padding:13px 16px;margin:16px 0;background:#fff4e5;border-left:5px solid #f59e0b}.warn.danger{background:#ffe9ee;border-left-color:var(--r);animation:glow 2.6s infinite}.ok{background:#dcfce7;border-left-color:var(--g)}
+label{display:block;font-weight:600;margin:18px 0 6px;color:var(--h)}small,.mu{color:var(--mu)}
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--bd);border-radius:12px;font:inherit;background:var(--cd);color:var(--tx);transition:.2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--m);box-shadow:0 0 0 4px #2563eb2e}textarea{min-height:130px;resize:vertical}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.opt{margin:0;font-weight:500;cursor:pointer}.opt input{position:absolute;opacity:0;width:0}
+.opt span{display:flex;gap:10px;align-items:center;border:1.5px solid var(--bd);border-radius:14px;padding:12px;background:var(--cd);transition:.2s;font-size:.9rem;height:100%}
+.opt span b{font-size:1.4rem}.opt:hover span{border-color:var(--m);transform:translateY(-2px)}
+.opt input:checked+span{border-color:var(--g);background:linear-gradient(135deg,#10b98122,#2563eb18);box-shadow:0 0 0 3px #10b98133}.opt input:focus-visible+span{outline:2px solid var(--m)}
+.opts.u .opt:nth-child(3) input:checked+span{border-color:var(--r);background:#e11d4822;box-shadow:0 0 0 3px #e11d4833}
+.sw{display:flex;align-items:center;gap:12px;font-weight:500;cursor:pointer}.sw input{width:46px;height:26px;appearance:none;border-radius:99px;background:var(--bd);position:relative;padding:0;border:0;cursor:pointer;flex:none}
+.sw input::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s}.sw input:checked{background:var(--g)}.sw input:checked::after{transform:translateX(20px)}
+.err{color:var(--r);font-size:.84rem;min-height:1.1em;margin-top:4px}.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:150px}
+.chip{display:inline-block;padding:3px 11px;border-radius:99px;font-size:.76rem;font-weight:600;background:var(--l);color:var(--m);margin:0 2px 4px 0}
+.chip.inmediato{background:#ffe0e6;color:#be123c}.chip.pendiente{background:#fff1d6;color:#b45309}.chip.atendido{background:#d1fae5;color:#047857}.chip.descartado{background:#e5e9ef;color:#5a6672}.chip.revision{background:#dbeafe;color:#1d4ed8}
+.rep{cursor:pointer;border-left:5px solid var(--m)}.cnt{font-size:2.2rem;margin:0;font-weight:800}
 .tick{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;animation:pop .5s both}
-.spin{width:38px;height:38px;border:4px solid var(--l);border-top-color:var(--g);border-radius:50%;animation:spin .8s linear infinite;margin:40px auto}
-.ov{position:fixed;inset:0;background:#0b254588;backdrop-filter:blur(4px);display:grid;place-items:center;z-index:20;animation:up .2s both;padding:16px}
-.ov.out{opacity:0;transition:opacity .2s}
-.modal{background:#fff;border-radius:18px;padding:26px;max-width:380px;text-align:center;animation:pop .35s both;box-shadow:0 20px 50px #0b254566}
-.modal .ico{font-size:2.6rem}.modal .row{margin-top:8px;justify-content:center}
-#toasts{position:fixed;right:14px;bottom:14px;display:grid;gap:8px;z-index:30}
-.toast{background:var(--d);color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 8px 22px #0b254566;border-left:5px solid var(--g);animation:up .35s both;transition:all .3s}
-.toast.err{border-left-color:var(--r)}.toast.out{opacity:0;transform:translateX(30px)}
-footer{border-top:1px solid #d5e2f1;margin-top:30px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media(max-width:600px){.hero h1{font-size:1.7rem}.hero .floaty{display:none}}
+.spin{width:40px;height:40px;border:4px solid var(--l);border-top-color:var(--g);border-radius:50%;animation:spin .8s linear infinite;margin:50px auto}
+.ov{position:fixed;inset:0;background:#08111f99;backdrop-filter:blur(5px);display:grid;place-items:center;z-index:30;padding:16px;animation:fade .2s both}.ov.out{opacity:0;transition:.2s}
+.modal{background:var(--cd);border-radius:22px;padding:28px;max-width:390px;text-align:center;animation:pop .35s both}.modal .ico{margin:0 auto 10px;font-size:2rem}.modal .row{justify-content:center}.modal .btn.alt{border:1px solid var(--bd)}
+#toasts{position:fixed;right:14px;bottom:14px;display:grid;gap:8px;z-index:40}.toast{background:#0b2545;color:#fff;padding:12px 18px;border-radius:14px;border-left:5px solid var(--g);box-shadow:0 10px 26px #0b254566;animation:up .35s both;transition:.3s}.toast.err{border-left-color:var(--r)}.toast.out{opacity:0;transform:translateX(30px)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s,box-shadow .3s,border-color .3s}.rv.in{opacity:1;transform:none}.rv.in.card:hover{transform:translateY(-6px)}
+footer{text-align:center;font-size:.84rem;color:var(--mu);padding:26px 16px;border-top:1px solid var(--bd)}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}@keyframes fade{from{opacity:0}}
+@keyframes pulse{50%{transform:scale(1.1)}}@keyframes floaty{50%{transform:translateY(-14px) rotate(4deg)}}@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blob{50%{transform:translate(40px,30px) scale(1.15)}}@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes glow{50%{box-shadow:0 0 0 9px #e11d4800}0%,100%{box-shadow:0 0 0 0 #e11d4855}}
+@media(max-width:640px){.hero{padding:34px 20px}.hero .floaty{display:none}.logo span{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style></head><body>
-<header><div class="bar">
-<a class="logo" href="#/"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#1d5fa8" stroke="#fff" stroke-width="2"/><path d="M13 20l5 5 10-11" fill="none" stroke="#3ddc97" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Colegio Seguro Digital</a>
-<nav id="nav"></nav></div></header>
-<main id="app"></main>
-<div id="toasts"></div>
-<footer>Prototipo escolar · No es un servicio de emergencias · Sin uso con casos reales hasta que el colegio lo autorice y revise la protección de datos.</footer>
+<header><div class="bar"><a class="logo" href="#/"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#2563eb" stroke="#fff" stroke-width="2"/><path d="M13 20l5 5 10-11" fill="none" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Colegio Seguro Digital</span></a><nav id="nav"></nav><button class="tg" id="th" title="Cambiar tema">🌙</button></div></header>
+<main id="app"></main><div id="toasts"></div>
+<footer>Prototipo escolar · No es un servicio de emergencias · No usar con casos reales hasta que el colegio lo autorice y revise la protección de datos.</footer>
 <script>
-// ====== CONFIGURACIÓN (ver README.md, paso 2) ======
-const SUPABASE_URL = "https://ittnsfiopdkuzerfcyup.supabase.co";       // https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = "sb_publishable_MvIUUMwUqu_OoXj64xmuvA_c8f6alPI";  // clave "anon public"
-// ===================================================
+// ====== CONFIGURACIÓN (ver README.md) ======
+const SUPABASE_URL = "https://ittnsfiopdkuzerfcyup.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_MvIUUMwUqu_OoXj64xmuvA_c8f6alPI";
+const TURNSTILE_SITEKEY = "";   // opcional: clave pública de Cloudflare Turnstile (captcha)
+// ===========================================
 const OK = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const db = OK ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const $ = s => document.querySelector(s), app = $("#app");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const TYPES = {acoso:"Acoso escolar o intimidación",convivencia:"Problema de convivencia",danos:"Daños en las instalaciones",riesgo:"Situación de riesgo",acompanamiento:"Solicitud de acompañamiento de un adulto",propuesta:"Propuesta para mejorar el colegio",otro:"Otro"};
+const TI = {acoso:"🛑",convivencia:"🤝",danos:"🏫",riesgo:"⚠️",acompanamiento:"🧑‍🏫",propuesta:"💡",otro:"✏️"};
 const URG = {proxima:"Puede revisarse próximamente",pronta:"Necesita atención pronta",inmediato:"Existe peligro inmediato"};
-const ST = {pendiente:"Pendiente",revision:"En revisión",atendido:"Atendido"};
+const UI = {proxima:"🟢",pronta:"🟠",inmediato:"🔴"};
+const ST = {pendiente:"Pendiente",revision:"En revisión",atendido:"Atendido",descartado:"Descartado / no verificado"};
+const GR = `<option value="">Prefiero no decirlo</option>${["Primaria","6°","7°","8°","9°","10°","11°","Varios grados","No lo sé"].map(g=>`<option>${g}</option>`).join("")}`;
 const NOCFG = `<div class="warn danger"><b>Base de datos sin configurar.</b> Esta función no guardará nada hasta completar SUPABASE_URL y SUPABASE_ANON_KEY en index.html (ver README.md). Si ya los pusiste, revisa tu conexión a internet.</div>`;
 const NAV = [["#/","Inicio"],["#/reportar","Reportar"],["#/prevencion","Prevención"],["#/acerca","Acerca"],["#/contacto","Contactos"],["#/admin","Personal"]];
 
+// ---- Captcha (Cloudflare Turnstile) ----
+let capTok = null;
+function loadCap(sel){ if(!TURNSTILE_SITEKEY||!$(sel)) return;
+  const go=()=>turnstile.render(sel,{sitekey:TURNSTILE_SITEKEY,callback:t=>capTok=t,"expired-callback":()=>capTok=null});
+  if(window.turnstile) go(); else { const s=document.createElement("script"); s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; s.onload=go; document.head.appendChild(s); } }
+const capOpts = () => TURNSTILE_SITEKEY ? {captchaToken:capTok} : {};
+const capReset = () => { capTok=null; try{turnstile.reset()}catch(_){} };
+
 const pages = {
-"": () => `<section class="hero"><div class="floaty"><svg width="96" height="96" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#ffffff22" stroke="#fff" stroke-width="1.6"/><path d="M13 20l5 5 10-11" fill="none" stroke="#3ddc97" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1>Colegio Seguro Digital</h1><p><b>“Tu bienestar importa”</b></p>
+"": () => `<section class="hero"><div class="floaty"><svg width="110" height="110" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#ffffff22" stroke="#fff" stroke-width="1.4"/><path d="M13 20l5 5 10-11" fill="none" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<span class="badge">🛡️ Convivencia escolar</span><h1>Colegio Seguro Digital</h1><p><b>“Tu bienestar importa”</b></p>
 <p>Un espacio para pedir orientación y comunicar situaciones de acoso, conflictos, daños en las instalaciones o riesgo, para que el colegio pueda acompañarte.</p>
-<a class="btn" href="#/reportar">Reportar una situación</a><a class="btn alt" href="#/prevencion">Consejos de prevención</a></section>
-<div class="grid"><div class="card"><div class="ico">📝</div><h3>Reportar</h3>Cuenta lo que pasó con pocos datos y sin pedir información personal.</div>
-<div class="card"><div class="ico">🤝</div><h3>Hablar con un adulto</h3>Puedes indicar si quieres que un adulto de confianza te acompañe.</div>
-<div class="card"><div class="ico">💡</div><h3>Prevenir</h3>Consejos para convivir mejor y cuidar el colegio.</div>
-<div class="card"><div class="ico">🔒</div><h3>Revisión privada</h3>Solo el personal autorizado ve los reportes.</div></div>
-<h2>¿Cómo funciona?</h2><ol><li>Envías el reporte desde el formulario.</li><li>Queda guardado en una base de datos protegida.</li><li>El personal autorizado lo revisa y cambia su estado: pendiente, en revisión o atendido.</li><li>El colegio decide el acompañamiento y las acciones.</li></ol>
+<a class="btn" href="#/reportar">Reportar una situación</a><a class="btn alt" href="#/prevencion">Consejos de prevención</a>
+<div class="pills"><span>🔒 Reportes privados</span><span>📝 Sin datos obligatorios</span><span>👩‍🏫 Revisión por el colegio</span></div></section>
+<div class="grid"><div class="card"><div class="ico">📝</div><h3>Reportar</h3><span class="mu">Cuenta lo que pasó con pocos datos, sin contraseñas ni información innecesaria.</span></div>
+<div class="card"><div class="ico">🤝</div><h3>Hablar con un adulto</h3><span class="mu">Indica si quieres que un adulto de confianza te acompañe.</span></div>
+<div class="card"><div class="ico">💡</div><h3>Prevenir</h3><span class="mu">Consejos para convivir mejor y cuidar el colegio.</span></div>
+<div class="card"><div class="ico">🔐</div><h3>Revisión privada</h3><span class="mu">Solo el personal autorizado ve los reportes.</span></div></div>
+<h2>¿Cómo funciona?</h2><div class="steps"><div class="step"><b>Reportas</b><br><span class="mu">Llenas el formulario en pocos minutos.</span></div><div class="step"><b>Se guarda</b><br><span class="mu">Queda en una base de datos protegida.</span></div><div class="step"><b>Se revisa</b><br><span class="mu">El personal verifica y cambia el estado del caso.</span></div><div class="step"><b>Se acompaña</b><br><span class="mu">El colegio decide las acciones de apoyo.</span></div></div>
 <div class="warn danger"><b>No es un servicio de emergencias.</b> Si hay peligro inmediato, busca ahora mismo a un docente, coordinador o adulto responsable cerca de ti.</div>`,
 
 reportar: () => `<h1>Reportar una situación</h1>${OK?"":NOCFG}
 <div class="warn danger"><b>¿Peligro inmediato?</b> Esta página no es un servicio de emergencias. Busca presencialmente a un adulto responsable ahora.</div>
-<form id="f" novalidate><label>Tipo de situación</label><select name="type"><option value="">Selecciona…</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><div class="err" data-e="type"></div>
-<label>Lugar donde ocurrió</label><select name="place"><option value="">Selecciona…</option>${["Salón","Patio","Baños","Pasillos","Biblioteca","Otro espacio"].map(p=>`<option>${p}</option>`).join("")}</select><div class="err" data-e="place"></div>
-<label>Momento en que ocurrió</label><input type="datetime-local" name="occurred_at"><div class="err" data-e="occurred_at"></div>
-<label>Descripción (mín. 10 caracteres)</label><textarea name="description" maxlength="2000" placeholder="Describe qué pasó. No es necesario incluir nombres."></textarea><div class="err" data-e="description"></div>
-<label>Nivel de atención</label><select name="urgency"><option value="">Selecciona…</option>${Object.entries(URG).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><div class="err" data-e="urgency"></div><div id="urgw"></div>
+<form id="f" class="panel" novalidate>
+<label style="margin-top:0">1. Tipo de situación</label><div class="opts">${Object.entries(TYPES).map(([k,v])=>`<label class="opt"><input type="radio" name="type" value="${k}"><span><b>${TI[k]}</b>${v}</span></label>`).join("")}</div><div class="err" data-e="type"></div>
+<label>2. Lugar donde ocurrió</label><select name="place"><option value="">Selecciona…</option>${["Salón","Patio","Baños","Pasillos","Biblioteca"].map(p=>`<option>${p}</option>`).join("")}<option value="Otro">Otro (escríbelo)</option></select>
+<input name="place_other" id="po" maxlength="80" placeholder="Escribe dónde ocurrió" style="margin-top:10px" hidden><div class="err" data-e="place"></div>
+<label>3. Momento en que ocurrió</label><input type="datetime-local" name="occurred_at"><div class="err" data-e="occurred_at"></div>
+<label>4. Descripción <small id="cc">(0/2000)</small></label><textarea name="description" maxlength="2000" placeholder="Describe qué pasó. No es necesario incluir nombres."></textarea><div class="err" data-e="description"></div>
+<label>5. Nivel de atención</label><div class="opts u">${Object.entries(URG).map(([k,v])=>`<label class="opt"><input type="radio" name="urgency" value="${k}"><span><b>${UI[k]}</b>${v}</span></label>`).join("")}</div><div class="err" data-e="urgency"></div><div id="urgw"></div>
+<div class="row"><div><label>Grado(s) involucrado(s) en la situación <small>(opcional)</small></label><select name="grade_involved">${GR}</select></div><div><label>Tu grado <small>(opcional)</small></label><select name="grade_reporter">${GR}</select></div></div>
+<label>Contacto para seguimiento <small>(opcional)</small></label><input name="contact" maxlength="200" placeholder="Correo, curso o forma de ubicarte"><small>Solo lo verá el personal autorizado. Si lo dejas vacío, el colegio no podrá responderte directamente.</small>
+<label class="sw" style="margin-top:20px"><input type="checkbox" name="wants_adult"> Quiero hablar con un adulto de confianza</label>
 <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px">
-<label style="font-weight:400"><input type="checkbox" name="wants_adult" style="width:auto"> Quiero hablar con un adulto de confianza</label>
-<div class="warn"><b>Aviso de privacidad:</b> no escribas contraseñas ni datos personales innecesarios. Este formulario no pide tu nombre, pero <b>no garantiza anonimato absoluto</b>: si mencionas nombres o detalles identificables en el texto, el personal autorizado podrá verlos. Los reportes no son públicos.</div>
-<button class="btn" id="sb" ${OK?"":"disabled"}>Enviar reporte</button><div id="msg"></div></form>`,
+<div class="warn"><b>Aviso de privacidad:</b> no escribas contraseñas ni datos personales innecesarios. El formulario no pide tu nombre, pero <b>no garantiza anonimato absoluto</b>: si das contacto o mencionas nombres o detalles identificables, el personal autorizado podrá verlos. Los reportes no son públicos y los reportes falsos pueden ser descartados y tratados según el manual de convivencia.</div>
+<div id="cap"></div><button class="btn" id="sb" ${OK?"":"disabled"}>Enviar reporte</button><div id="msg"></div></form>`,
 
 prevencion: () => `<h1>Prevención</h1><div class="grid">
-${[["🛡️","Prevenir el acoso","No te burles ni compartas burlas; no te quedes callado si ves maltrato; acompaña a quien se sienta solo; recuerda que una broma que lastima no es broma."],
+${[["🛡️","Prevenir el acoso","No te burles ni compartas burlas; no te quedes callado si ves maltrato; acompaña a quien se sienta solo; una broma que lastima no es broma."],
 ["🕊️","Resolver conflictos","Respira antes de responder, habla en primera persona (“me sentí…”), escucha sin interrumpir y pide mediación a un docente si no se resuelve."],
 ["🧑‍🏫","Pedir ayuda","Busca a un docente, orientador o coordinador de confianza. Di qué pasó, dónde y cuándo. Pedir ayuda no es ‘chismosear’, es cuidar."],
-["🏫","Cuidar las instalaciones","Deja los espacios limpios, reporta daños en lugar de ignorarlos y no rayes ni dañes mobiliario."],
+["🏫","Cuidar las instalaciones","Deja los espacios limpios, reporta daños en lugar de ignorarlos y no rayes ni dañes el mobiliario."],
 ["🔐","Privacidad digital","No compartas contraseñas, fotos o datos de otros sin permiso; usa claves distintas y bloquea y reporta a quien te acose en línea."]]
-.map(([i,t,x])=>`<div class="card"><div class="ico">${i}</div><h3>${t}</h3>${x}</div>`).join("")}</div>
-<a class="btn" href="#/reportar">Reportar una situación</a>`,
+.map(([i,t,x])=>`<div class="card"><div class="ico">${i}</div><h3>${t}</h3><span class="mu">${x}</span></div>`).join("")}</div><a class="btn" href="#/reportar">Reportar una situación</a>`,
 
-acerca: () => `<h1>Acerca del proyecto</h1>
-<div class="card"><h3>Problema</h3>Muchas situaciones de acoso, conflicto o daño en el colegio no se comunican por miedo, vergüenza o falta de un canal claro.</div><br>
-<div class="card"><h3>Justificación</h3>Un canal digital sencillo y privado puede ayudar a que el colegio conozca y atienda a tiempo estas situaciones.</div><br>
-<div class="card"><h3>Objetivo general</h3>Facilitar la comunicación segura de situaciones de convivencia y seguridad escolar mediante una aplicación web.</div><br>
-<div class="card"><h3>Objetivos específicos</h3><ul><li>Recibir reportes con un formulario validado.</li><li>Almacenarlos en una base de datos protegida.</li><li>Permitir su seguimiento por personal autorizado.</li><li>Ofrecer orientación preventiva.</li></ul></div><br>
-<div class="card"><h3>Beneficios</h3>Respuesta más rápida, más confianza de los estudiantes, mejor cuidado de las instalaciones y datos para mejorar la convivencia.</div><br>
-<div class="card"><h3>Procedimiento de revisión (propuesta para el colegio)</h3><ol><li>Una persona designada revisa el panel todos los días hábiles.</li><li>Se priorizan los reportes de “peligro inmediato” y los que piden hablar con un adulto.</li><li>Se pasa el caso a “En revisión” y se anota cada acción en las notas privadas.</li><li>Se activa la ruta de convivencia o acompañamiento definida por el colegio.</li><li>Se marca “Atendido” con una nota de cierre.</li><li>Se revisan las estadísticas cada periodo y se borran los datos según la política de tratamiento de datos.</li></ol>El colegio debe ajustarlo a su manual de convivencia.</div>`,
+acerca: () => `<h1>Acerca del proyecto</h1><div class="grid">
+<div class="card"><h3>Problema</h3><span class="mu">Muchas situaciones de acoso, conflicto o daño en el colegio no se comunican por miedo, vergüenza o falta de un canal claro.</span></div>
+<div class="card"><h3>Justificación</h3><span class="mu">Un canal digital sencillo y privado ayuda a que el colegio conozca y atienda a tiempo estas situaciones.</span></div>
+<div class="card"><h3>Objetivo general</h3><span class="mu">Facilitar la comunicación segura de situaciones de convivencia y seguridad escolar mediante una aplicación web.</span></div>
+<div class="card"><h3>Objetivos específicos</h3><ul class="mu"><li>Recibir reportes con un formulario validado.</li><li>Almacenarlos en una base de datos protegida.</li><li>Permitir su seguimiento por personal autorizado.</li><li>Ofrecer orientación preventiva.</li></ul></div>
+<div class="card"><h3>Beneficios</h3><span class="mu">Respuesta más rápida, más confianza de los estudiantes, mejor cuidado de las instalaciones y datos para mejorar la convivencia.</span></div></div>
+<div class="card"><h3>Procedimiento de revisión (propuesta para el colegio)</h3><ol class="mu"><li>Una persona designada revisa el panel todos los días hábiles.</li><li>Se priorizan los reportes de “peligro inmediato” y los que piden hablar con un adulto.</li><li>Se pasa el caso a “En revisión” y se anota cada acción en las notas privadas.</li><li>Un reporte es una alerta, no una prueba: se verifica con observación y conversación antes de actuar; nadie es sancionado por un solo reporte.</li><li>Si no se confirma, se marca “Descartado / no verificado” (no se borra, para detectar patrones).</li><li>Se marca “Atendido” con una nota de cierre y se revisan las estadísticas cada periodo.</li></ol>
+<p class="mu">Reportar de buena fe nunca se sanciona; hacer reportes falsos con mala intención sí puede ser una falta. El colegio debe ajustar esto a su manual de convivencia.</p></div>`,
 
 contacto: async () => {
   let s = {}; if (OK) { const {data} = await db.from("school_settings").select(); (data||[]).forEach(r=>s[r.key]=r.value); }
@@ -148,58 +149,76 @@ contacto: async () => {
 admin: async () => {
   if (!OK) return `<h1>Panel del personal</h1>${NOCFG}`;
   const {data:{session}} = await db.auth.getSession();
-  if (!session) return `<h1>Panel del personal</h1><form id="lf"><label>Correo</label><input type="email" name="e" required><label>Contraseña</label><input type="password" name="p" required><button class="btn">Ingresar</button><div id="msg"></div></form>`;
+  if (!session || session.user.is_anonymous) return `<h1>Panel del personal</h1><form id="lf" class="panel"><label style="margin-top:0">Correo</label><input type="email" name="e" required><label>Contraseña</label><input type="password" name="p" required><div id="cap" style="margin-top:12px"></div><button class="btn">Ingresar</button><div id="msg"></div></form>`;
   const {data:st} = await db.from("staff").select().maybeSingle();
   if (!st) return `<h1>Panel del personal</h1><div class="warn danger">Esta cuenta no está autorizada como personal del colegio.</div><button class="btn sm" id="out">Salir</button>`;
-  return `<h1>Panel del personal <button class="btn sm alt" id="out">Salir</button></h1><div id="stats"></div>
-<div class="row"><input id="q" placeholder="Buscar en descripción"><select id="ft"><option value="">Todas las categorías</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
+  return `<h1>Panel del personal <button class="btn sm alt" id="out" style="border:1px solid var(--bd)">Salir</button></h1><div id="stats"></div>
+<div class="row"><input id="q" placeholder="🔎 Buscar en descripción"><select id="ft"><option value="">Todas las categorías</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
 <select id="fs"><option value="">Todos los estados</option>${Object.entries(ST).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><input type="date" id="fd1" title="Desde"><input type="date" id="fd2" title="Hasta"></div>
 <div id="list" style="margin-top:14px"></div><div id="detail"></div>
-<h2>Datos de contacto del colegio</h2><form id="cf">${[["school_name","Nombre oficial"],["hours","Horarios"],["contact_name","Orientador/Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l])=>`<label>${l}</label><input name="${k}" maxlength="200">`).join("")}<button class="btn sm">Guardar contactos</button><div id="cmsg"></div></form>`;
+<h2>Datos de contacto del colegio</h2><form id="cf" class="panel">${[["school_name","Nombre oficial"],["hours","Horarios"],["contact_name","Orientador/Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l],i)=>`<label ${i?"":'style="margin-top:0"'}>${l}</label><input name="${k}" maxlength="200">`).join("")}<br><button class="btn sm">Guardar contactos</button><div id="cmsg"></div></form>`;
 }};
 
+// ---- utilidades de interfaz ----
 function toast(t,k="ok"){const e=document.createElement("div");e.className="toast "+k;e.textContent=t;$("#toasts").appendChild(e);setTimeout(()=>{e.classList.add("out");setTimeout(()=>e.remove(),300)},3500);}
-function confirmBox(msg){return new Promise(res=>{const o=document.createElement("div");o.className="ov";o.innerHTML=`<div class="modal"><div class="ico">⚠️</div><h3>¿Eliminar este reporte?</h3><p>${msg}</p><div class="row"><button class="btn sm alt" id="c0">Cancelar</button><button class="btn sm danger-btn" id="c1">Sí, eliminar</button></div></div>`;document.body.appendChild(o);const done=v=>{o.classList.add("out");setTimeout(()=>o.remove(),200);res(v)};o.querySelector("#c0").onclick=()=>done(false);o.querySelector("#c1").onclick=()=>done(true);o.onclick=e=>{if(e.target===o)done(false)};});}
+function confirmBox(msg){return new Promise(res=>{const o=document.createElement("div");o.className="ov";o.innerHTML=`<div class="modal"><div class="ico">⚠️</div><h3>¿Eliminar este reporte?</h3><p class="mu">${msg}</p><div class="row"><button class="btn sm alt" id="c0">Cancelar</button><button class="btn sm danger-btn" id="c1">Sí, eliminar</button></div></div>`;document.body.appendChild(o);const done=v=>{o.classList.add("out");setTimeout(()=>o.remove(),200);res(v)};o.querySelector("#c0").onclick=()=>done(false);o.querySelector("#c1").onclick=()=>done(true);o.onclick=e=>{if(e.target===o)done(false)};});}
 function countUp(){document.querySelectorAll(".cnt").forEach(el=>{const n=+el.dataset.n;let i=0;const st=Math.max(1,Math.ceil(n/20));const t=setInterval(()=>{i=Math.min(n,i+st);el.textContent=i;if(i>=n)clearInterval(t)},30)})}
+const io = window.IntersectionObserver ? new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.08}) : null;
+function reveal(){document.querySelectorAll(".card:not(.rv),.step:not(.rv),.panel:not(.rv),.hero:not(.rv)").forEach((e,i)=>{e.classList.add("rv");e.style.transitionDelay=Math.min(i%6,5)*60+"ms";io?io.observe(e):e.classList.add("in")})}
+function setTheme(t){document.documentElement.dataset.theme=t;$("#th").textContent=t==="dark"?"☀️":"🌙";try{localStorage.setItem("csd_theme",t)}catch(_){}}
+let th; try{th=localStorage.getItem("csd_theme")}catch(_){} setTheme(th||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+$("#th").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+
 async function render(){
-  const h = location.hash.replace("#/","").split("?")[0];
+  const h = location.hash.replace("#/","").split("?")[0]; capTok=null;
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#/"+h));
   app.innerHTML = '<div class="spin"></div>';
   try { app.innerHTML = await (pages[h] || pages[""])(); } catch(e){ app.innerHTML = `<div class="warn danger">Error: ${esc(e.message)}</div>`; return; }
-  scrollTo(0,0);
+  scrollTo(0,0); reveal();
   if (h==="reportar") bindForm(); if (h==="admin") bindAdmin();
 }
 $("#nav").innerHTML = NAV.map(([h,t])=>`<a href="${h}">${t}</a>`).join("");
 addEventListener("hashchange", render); render();
 
 function bindForm(){
-  const f = $("#f"); if(!f) return;
-  f.elements.urgency.onchange = () => $("#urgw").innerHTML = f.elements.urgency.value==="inmediato" ? `<div class="warn danger"><b>Peligro inmediato:</b> este formulario no se revisa en el momento. Busca ahora mismo a un docente, coordinador o adulto responsable que esté cerca.</div>` : "";
+  const f = $("#f"); if(!f) return; loadCap("#cap");
+  f.elements.place.onchange = () => { $("#po").hidden = f.elements.place.value!=="Otro"; if(!$("#po").hidden) $("#po").focus(); };
+  f.elements.description.oninput = () => $("#cc").textContent = `(${f.elements.description.value.length}/2000)`;
+  f.querySelectorAll("[name=urgency]").forEach(r => r.onchange = () => $("#urgw").innerHTML = r.value==="inmediato" ? `<div class="warn danger"><b>Peligro inmediato:</b> este formulario no se revisa en el momento. Busca ahora mismo a un docente, coordinador o adulto responsable que esté cerca.</div>` : "");
   f.onsubmit = async ev => {
     ev.preventDefault(); const d = new FormData(f), e = {};
     if(d.get("website")) return;
     let last=0; try{last=+localStorage.getItem("csd_last")||0}catch(_){}
     if(Date.now()-last<30000){ $("#msg").innerHTML=`<div class="warn">Espera unos segundos antes de enviar otro reporte.</div>`; return; }
     document.querySelectorAll("[data-e]").forEach(x=>x.textContent="");
-    ["type","place","urgency"].forEach(k=>{ if(!d.get(k)) e[k]="Selecciona una opción."; });
+    if(!d.get("type")) e.type="Selecciona el tipo de situación.";
+    if(!d.get("urgency")) e.urgency="Selecciona el nivel de atención.";
+    if(!d.get("place")) e.place="Selecciona el lugar."; else if(d.get("place")==="Otro" && d.get("place_other").trim().length<2) e.place="Escribe dónde ocurrió.";
     if(!d.get("occurred_at")) e.occurred_at="Indica cuándo ocurrió."; else if(new Date(d.get("occurred_at"))>new Date()) e.occurred_at="La fecha no puede ser futura.";
     if((d.get("description")||"").trim().length<10) e.description="Escribe al menos 10 caracteres.";
     for(const k in e) f.querySelector(`[data-e=${k}]`).textContent=e[k];
-    if(Object.keys(e).length) return;
-    $("#sb").disabled = true;
-    const {error} = await db.from("reports").insert({type:d.get("type"),place:d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult")});
-    $("#sb").disabled = false;
-    if(error) $("#msg").innerHTML = `<div class="warn danger">No se pudo enviar: ${esc(error.message)}. Intenta de nuevo o habla con un adulto.</div>`;
-    else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#urgw").innerHTML=""; toast("Reporte enviado correctamente"); $("#msg").innerHTML = `<div class="ok"><span class="tick">✔</span> <b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
+    if(Object.keys(e).length) return f.querySelector(".err:not(:empty)")?.scrollIntoView({behavior:"smooth",block:"center"});
+    if(TURNSTILE_SITEKEY && !capTok) return $("#msg").innerHTML=`<div class="warn">Completa la verificación de seguridad antes de enviar.</div>`;
+    $("#sb").disabled = true; $("#msg").innerHTML = "";
+    let error = null;
+    const {data:{session}} = await db.auth.getSession();
+    if(!session){ const r = await db.auth.signInAnonymously({options:capOpts()}); error = r.error; }
+    if(!error) ({error} = await db.from("reports").insert({type:d.get("type"),place:d.get("place")==="Otro"?"Otro: "+d.get("place_other").trim():d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult"),contact:d.get("contact").trim()||null,grade_involved:d.get("grade_involved")||null,grade_reporter:d.get("grade_reporter")||null}));
+    $("#sb").disabled = false; capReset();
+    if(error){ const m = /anonymous/i.test(error.message) ? "Falta activar «Anonymous sign-ins» en Supabase (ver README)." : error.message;
+      $("#msg").innerHTML = `<div class="warn danger">No se pudo enviar: ${esc(m)}. Intenta de nuevo o habla con un adulto.</div>`; }
+    else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#po").hidden=true; $("#urgw").innerHTML=""; $("#cc").textContent="(0/2000)"; toast("Reporte enviado correctamente");
+      $("#msg").innerHTML = `<div class="ok"><span class="tick">✔</span> <b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
   };
 }
 
 function bindAdmin(){
   $("#out") && ($("#out").onclick = async()=>{await db.auth.signOut();render();});
   const lf = $("#lf");
-  if (lf) lf.onsubmit = async ev => { ev.preventDefault();
-    const {error} = await db.auth.signInWithPassword({email:lf.e.value,password:lf.p.value});
-    error ? $("#msg").innerHTML = `<div class="warn danger">${esc(error.message)}</div>` : render(); };
+  if (lf) { loadCap("#cap"); lf.onsubmit = async ev => { ev.preventDefault();
+    if(TURNSTILE_SITEKEY && !capTok) return $("#msg").innerHTML=`<div class="warn">Completa la verificación de seguridad.</div>`;
+    const {error} = await db.auth.signInWithPassword({email:lf.e.value,password:lf.p.value,options:capOpts()});
+    if(error){ capReset(); $("#msg").innerHTML = `<div class="warn danger">${esc(error.message)}</div>`; } else render(); }; }
   if (!$("#list")) return;
   const load = async () => {
     let q = db.from("reports").select().order("created_at",{ascending:false});
@@ -207,27 +226,27 @@ function bindAdmin(){
     if($("#fd1").value) q=q.gte("created_at",$("#fd1").value); if($("#fd2").value) q=q.lte("created_at",$("#fd2").value+"T23:59:59");
     if($("#q").value.trim()) q=q.ilike("description","%"+$("#q").value.trim().replace(/[%,]/g," ")+"%");
     const {data,error} = await q; if(error) return $("#list").innerHTML=`<div class="warn danger">${esc(error.message)}</div>`;
-    $("#list").innerHTML = data.length ? data.map(r=>`<div class="card rep" data-id="${r.id}"><span class="chip">${TYPES[r.type]}</span> <span class="chip ${r.status}">${ST[r.status]}</span> <span class="chip ${r.urgency}">${URG[r.urgency]}</span>${r.wants_adult?' <span class="chip">Pide adulto</span>':""}<p>${esc(r.description.slice(0,140))}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)}</small></div>`).join("") : "<p>No hay reportes con esos filtros.</p>";
-    document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>open(data.find(r=>r.id===c.dataset.id)));
+    $("#list").innerHTML = data.length ? data.map(r=>`<div class="card rep" data-id="${r.id}" style="margin-bottom:12px"><span class="chip">${TI[r.type]} ${TYPES[r.type]}</span><span class="chip ${r.status}">${ST[r.status]}</span><span class="chip ${r.urgency}">${URG[r.urgency]}</span>${r.wants_adult?'<span class="chip">Pide adulto</span>':""}${r.grade_involved?`<span class="chip">Grado: ${esc(r.grade_involved)}</span>`:""}<p>${esc(r.description.slice(0,140))}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)}</small></div>`).join("") : "<p class='mu'>No hay reportes con esos filtros.</p>";
+    document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>open(data.find(r=>r.id===c.dataset.id))); reveal();
   };
   const stats = async()=>{ const {data} = await db.rpc("report_stats"); if(!data) return;
-    $("#stats").innerHTML = `<div class="grid"><div class="card"><h3 class="cnt" data-n="${data.total}">0</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3 class="cnt" data-n="${data.por_estado[k]||0}">0</h3>${v}</div>`).join("")}</div>`; countUp(); };
+    $("#stats").innerHTML = `<div class="grid"><div class="card"><h3 class="cnt" data-n="${data.total}">0</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3 class="cnt" data-n="${data.por_estado[k]||0}">0</h3>${v}</div>`).join("")}</div>`; countUp(); reveal(); };
   const open = async r => {
     const {data:ns} = await db.from("notes").select().eq("report_id",r.id).order("created_at");
-    $("#detail").innerHTML = `<div class="card" style="margin-top:14px"><h3>${TYPES[r.type]}</h3><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
+    $("#detail").innerHTML = `<div class="panel" style="margin-top:14px"><h3>${TI[r.type]} ${TYPES[r.type]}</h3><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
+<p class="mu">Grado involucrado: <b>${esc(r.grade_involved||"no indicado")}</b> · Grado de quien reporta: <b>${esc(r.grade_reporter||"no indicado")}</b> · Contacto: <b>${esc(r.contact||"no dejó contacto")}</b> · ${r.wants_adult?"Pide hablar con un adulto":"No pidió adulto"}</p>
 <label>Estado</label><select id="ns">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===r.status?"selected":""}>${v}</option>`).join("")}</select>
-<h4>Notas privadas</h4>${(ns||[]).map(n=>`<div class="note">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas.</small>"}
-<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px"></textarea><button class="btn sm" id="sn">Guardar nota</button><hr style="margin:18px 0;border:0;border-top:1px solid #d5e2f1"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
+<h4>Notas privadas</h4>${(ns||[]).map(n=>`<div class="chip" style="display:block;border-radius:12px;padding:8px 12px">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas.</small>"}
+<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px;margin:8px 0"></textarea><button class="btn sm" id="sn">Guardar nota</button><hr style="margin:18px 0;border:0;border-top:1px solid var(--bd)"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
     $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?toast(error.message,"err"):(toast("Estado actualizado"),load(),stats()); };
     $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?toast(error.message,"err"):(toast("Nota guardada"),open(r)); };
-    $("#del").onclick = async () => {
-      if (!(await confirmBox("Se borrará el reporte y todas sus notas. Esta acción no se puede deshacer."))) return;
+    $("#del").onclick = async()=>{
+      if(!(await confirmBox("Se borrará el reporte y todas sus notas. Esta acción no se puede deshacer."))) return;
       const {data:del,error} = await db.from("reports").delete().eq("id",r.id).select();
-      if (error) return toast("No se pudo eliminar: "+error.message,"err");
-      if (!del || !del.length) return toast("No se eliminó. Falta ejecutar permiso-eliminar.sql en Supabase.","err");
-      $("#detail").innerHTML = ""; toast("Reporte eliminado"); load(); stats();
-    };
-    $("#detail").scrollIntoView({behavior:"smooth"});
+      if(error) return toast("No se pudo eliminar: "+error.message,"err");
+      if(!del||!del.length) return toast("No se eliminó. Falta ejecutar permiso-eliminar.sql en Supabase.","err");
+      $("#detail").innerHTML=""; toast("Reporte eliminado"); load(); stats(); };
+    reveal(); $("#detail").scrollIntoView({behavior:"smooth"});
   };
   ["q","ft","fs","fd1","fd2"].forEach(i=>$("#"+i).oninput=load);
   load(); stats();
