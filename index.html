@@ -71,7 +71,7 @@ footer{text-align:center;font-size:.84rem;color:var(--mu);padding:26px 16px;bord
 // ====== CONFIGURACIÓN (ver README.md) ======
 const SUPABASE_URL = "https://ittnsfiopdkuzerfcyup.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_MvIUUMwUqu_OoXj64xmuvA_c8f6alPI";
-const TURNSTILE_SITEKEY = "";   // opcional: clave pública de Cloudflare Turnstile (captcha)
+const TURNSTILE_SITEKEY = "0x4AAAAAAFfFw_JulZ45NvoI";   // opcional: clave pública de Cloudflare Turnstile (captcha)
 // ===========================================
 const OK = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const db = OK ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
