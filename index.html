@@ -2,6 +2,7 @@
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Colegio Seguro Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--d:#0b2545;--m:#1d5fa8;--l:#e8f1fb;--g:#1fa971;--r:#c0392b;--t:#1b2733}
@@ -30,11 +31,58 @@ textarea{min-height:120px}.err{color:var(--r);font-size:.85rem;min-height:1em}
 .rep{cursor:pointer}.rep:hover{outline:2px solid var(--m)}
 .note{background:var(--l);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:.9rem}
 footer{text-align:center;font-size:.85rem;color:#58687a;padding:20px}
+
+/* ===== Mejoras visuales y animaciones ===== */
+html{scroll-behavior:smooth}
+body{font-family:"Poppins",system-ui,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 10% 0,#dbeafe 0,transparent 40%),radial-gradient(circle at 100% 20%,#d1fae5 0,transparent 35%),#f6f9fd;background-attachment:fixed}
+header{background:rgba(11,37,69,.92);backdrop-filter:blur(10px);box-shadow:0 4px 18px #0b254533}
+.logo svg{animation:pulse 3s ease-in-out infinite;filter:drop-shadow(0 0 6px #3ddc9780)}
+nav a{transition:all .25s}nav a:hover{transform:translateY(-2px)}nav a.on{box-shadow:0 3px 10px #1d5fa8aa}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+@keyframes flow{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 #c0392b55}50%{box-shadow:0 0 0 10px #c0392b00}}
+#app>*{animation:up .55s both}#app>*:nth-child(2){animation-delay:.08s}#app>*:nth-child(3){animation-delay:.16s}#app>*:nth-child(4){animation-delay:.24s}
+.grid .card,#list .card{animation:up .55s both}
+.grid .card:nth-child(2){animation-delay:.1s}.grid .card:nth-child(3){animation-delay:.2s}.grid .card:nth-child(4){animation-delay:.3s}.grid .card:nth-child(5){animation-delay:.4s}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#0b2545,#1d5fa8,#127a50,#0b2545);background-size:300% 300%;animation:flow 14s ease infinite,up .6s both;box-shadow:0 14px 34px #0b254544;padding:44px 28px}
+.hero::after{content:"";position:absolute;right:-60px;bottom:-80px;width:260px;height:260px;border-radius:50%;background:#ffffff14}
+.hero .floaty{position:absolute;right:26px;top:22px;opacity:.9;animation:floaty 5s ease-in-out infinite}
+.hero h1{font-size:2.3rem;position:relative}.hero p,.hero a{position:relative}
+.card{transition:transform .25s,box-shadow .25s;border-radius:16px}
+.card:hover{transform:translateY(-6px);box-shadow:0 14px 28px #0b254528}
+.ico{display:inline-block;transition:transform .3s}.card:hover .ico{transform:scale(1.25) rotate(-8deg)}
+.btn{transition:transform .2s,box-shadow .2s,filter .2s;box-shadow:0 6px 14px #1fa97144}
+.btn:hover:not(:disabled){transform:translateY(-3px);filter:brightness(1.08);box-shadow:0 10px 20px #1fa97155}
+.btn:active:not(:disabled){transform:translateY(0) scale(.97)}.btn.alt{box-shadow:0 6px 14px #0b254522}.btn:disabled{background:#9db3c9;box-shadow:none;cursor:not-allowed}
+.danger-btn{background:var(--r);box-shadow:0 6px 14px #c0392b44}
+input,select,textarea{transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--m);box-shadow:0 0 0 4px #1d5fa833}
+.warn.danger{animation:glow 2.4s infinite}
+.chip{transition:transform .2s}.chip:hover{transform:scale(1.08)}
+.rep{border-top-color:var(--m)}.rep:hover{outline:0;border-top-color:var(--g)}
+.cnt{font-size:2rem;margin:0}
+.tick{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;animation:pop .5s both}
+.spin{width:38px;height:38px;border:4px solid var(--l);border-top-color:var(--g);border-radius:50%;animation:spin .8s linear infinite;margin:40px auto}
+.ov{position:fixed;inset:0;background:#0b254588;backdrop-filter:blur(4px);display:grid;place-items:center;z-index:20;animation:up .2s both;padding:16px}
+.ov.out{opacity:0;transition:opacity .2s}
+.modal{background:#fff;border-radius:18px;padding:26px;max-width:380px;text-align:center;animation:pop .35s both;box-shadow:0 20px 50px #0b254566}
+.modal .ico{font-size:2.6rem}.modal .row{margin-top:8px;justify-content:center}
+#toasts{position:fixed;right:14px;bottom:14px;display:grid;gap:8px;z-index:30}
+.toast{background:var(--d);color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 8px 22px #0b254566;border-left:5px solid var(--g);animation:up .35s both;transition:all .3s}
+.toast.err{border-left-color:var(--r)}.toast.out{opacity:0;transform:translateX(30px)}
+footer{border-top:1px solid #d5e2f1;margin-top:30px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:600px){.hero h1{font-size:1.7rem}.hero .floaty{display:none}}
 </style></head><body>
 <header><div class="bar">
 <a class="logo" href="#/"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#1d5fa8" stroke="#fff" stroke-width="2"/><path d="M13 20l5 5 10-11" fill="none" stroke="#3ddc97" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Colegio Seguro Digital</a>
 <nav id="nav"></nav></div></header>
 <main id="app"></main>
+<div id="toasts"></div>
 <footer>Prototipo escolar · No es un servicio de emergencias · Sin uso con casos reales hasta que el colegio lo autorice y revise la protección de datos.</footer>
 <script>
 // ====== CONFIGURACIÓN (ver README.md, paso 2) ======
@@ -52,7 +100,7 @@ const NOCFG = `<div class="warn danger"><b>Base de datos sin configurar.</b> Est
 const NAV = [["#/","Inicio"],["#/reportar","Reportar"],["#/prevencion","Prevención"],["#/acerca","Acerca"],["#/contacto","Contactos"],["#/admin","Personal"]];
 
 const pages = {
-"": () => `<section class="hero"><h1>Colegio Seguro Digital</h1><p><b>“Tu bienestar importa”</b></p>
+"": () => `<section class="hero"><div class="floaty"><svg width="96" height="96" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#ffffff22" stroke="#fff" stroke-width="1.6"/><path d="M13 20l5 5 10-11" fill="none" stroke="#3ddc97" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1>Colegio Seguro Digital</h1><p><b>“Tu bienestar importa”</b></p>
 <p>Un espacio para pedir orientación y comunicar situaciones de acoso, conflictos, daños en las instalaciones o riesgo, para que el colegio pueda acompañarte.</p>
 <a class="btn" href="#/reportar">Reportar una situación</a><a class="btn alt" href="#/prevencion">Consejos de prevención</a></section>
 <div class="grid"><div class="card"><div class="ico">📝</div><h3>Reportar</h3>Cuenta lo que pasó con pocos datos y sin pedir información personal.</div>
@@ -110,10 +158,13 @@ admin: async () => {
 <h2>Datos de contacto del colegio</h2><form id="cf">${[["school_name","Nombre oficial"],["hours","Horarios"],["contact_name","Orientador/Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l])=>`<label>${l}</label><input name="${k}" maxlength="200">`).join("")}<button class="btn sm">Guardar contactos</button><div id="cmsg"></div></form>`;
 }};
 
+function toast(t,k="ok"){const e=document.createElement("div");e.className="toast "+k;e.textContent=t;$("#toasts").appendChild(e);setTimeout(()=>{e.classList.add("out");setTimeout(()=>e.remove(),300)},3500);}
+function confirmBox(msg){return new Promise(res=>{const o=document.createElement("div");o.className="ov";o.innerHTML=`<div class="modal"><div class="ico">⚠️</div><h3>¿Eliminar este reporte?</h3><p>${msg}</p><div class="row"><button class="btn sm alt" id="c0">Cancelar</button><button class="btn sm danger-btn" id="c1">Sí, eliminar</button></div></div>`;document.body.appendChild(o);const done=v=>{o.classList.add("out");setTimeout(()=>o.remove(),200);res(v)};o.querySelector("#c0").onclick=()=>done(false);o.querySelector("#c1").onclick=()=>done(true);o.onclick=e=>{if(e.target===o)done(false)};});}
+function countUp(){document.querySelectorAll(".cnt").forEach(el=>{const n=+el.dataset.n;let i=0;const st=Math.max(1,Math.ceil(n/20));const t=setInterval(()=>{i=Math.min(n,i+st);el.textContent=i;if(i>=n)clearInterval(t)},30)})}
 async function render(){
   const h = location.hash.replace("#/","").split("?")[0];
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#/"+h));
-  app.innerHTML = "Cargando…";
+  app.innerHTML = '<div class="spin"></div>';
   try { app.innerHTML = await (pages[h] || pages[""])(); } catch(e){ app.innerHTML = `<div class="warn danger">Error: ${esc(e.message)}</div>`; return; }
   scrollTo(0,0);
   if (h==="reportar") bindForm(); if (h==="admin") bindAdmin();
@@ -139,7 +190,7 @@ function bindForm(){
     const {error} = await db.from("reports").insert({type:d.get("type"),place:d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult")});
     $("#sb").disabled = false;
     if(error) $("#msg").innerHTML = `<div class="warn danger">No se pudo enviar: ${esc(error.message)}. Intenta de nuevo o habla con un adulto.</div>`;
-    else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#urgw").innerHTML=""; $("#msg").innerHTML = `<div class="ok"><b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
+    else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#urgw").innerHTML=""; toast("Reporte enviado correctamente"); $("#msg").innerHTML = `<div class="ok"><span class="tick">✔</span> <b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
   };
 }
 
@@ -160,15 +211,22 @@ function bindAdmin(){
     document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>open(data.find(r=>r.id===c.dataset.id)));
   };
   const stats = async()=>{ const {data} = await db.rpc("report_stats"); if(!data) return;
-    $("#stats").innerHTML = `<div class="grid"><div class="card"><h3>${data.total}</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3>${data.por_estado[k]||0}</h3>${v}</div>`).join("")}</div>`; };
+    $("#stats").innerHTML = `<div class="grid"><div class="card"><h3 class="cnt" data-n="${data.total}">0</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3 class="cnt" data-n="${data.por_estado[k]||0}">0</h3>${v}</div>`).join("")}</div>`; countUp(); };
   const open = async r => {
     const {data:ns} = await db.from("notes").select().eq("report_id",r.id).order("created_at");
     $("#detail").innerHTML = `<div class="card" style="margin-top:14px"><h3>${TYPES[r.type]}</h3><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
 <label>Estado</label><select id="ns">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===r.status?"selected":""}>${v}</option>`).join("")}</select>
 <h4>Notas privadas</h4>${(ns||[]).map(n=>`<div class="note">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas.</small>"}
-<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px"></textarea><button class="btn sm" id="sn">Guardar nota</button></div>`;
-    $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?alert(error.message):(load(),stats()); };
-    $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?alert(error.message):open(r); };
+<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px"></textarea><button class="btn sm" id="sn">Guardar nota</button><hr style="margin:18px 0;border:0;border-top:1px solid #d5e2f1"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
+    $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?toast(error.message,"err"):(toast("Estado actualizado"),load(),stats()); };
+    $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?toast(error.message,"err"):(toast("Nota guardada"),open(r)); };
+    $("#del").onclick = async () => {
+      if (!(await confirmBox("Se borrará el reporte y todas sus notas. Esta acción no se puede deshacer."))) return;
+      const {data:del,error} = await db.from("reports").delete().eq("id",r.id).select();
+      if (error) return toast("No se pudo eliminar: "+error.message,"err");
+      if (!del || !del.length) return toast("No se eliminó. Falta ejecutar permiso-eliminar.sql en Supabase.","err");
+      $("#detail").innerHTML = ""; toast("Reporte eliminado"); load(); stats();
+    };
     $("#detail").scrollIntoView({behavior:"smooth"});
   };
   ["q","ft","fs","fd1","fd2"].forEach(i=>$("#"+i).oninput=load);
@@ -177,6 +235,6 @@ function bindAdmin(){
   $("#cf").onsubmit = async ev => { ev.preventDefault();
     const rows = ["school_name","hours","contact_name","contact_channel"].map(k=>({key:k,value:$("#cf").elements[k].value.trim()}));
     const {error} = await db.from("school_settings").upsert(rows);
-    $("#cmsg").innerHTML = error ? `<div class="warn danger">${esc(error.message)}</div>` : `<div class="ok">Contactos guardados.</div>`; };
+    error ? $("#cmsg").innerHTML = `<div class="warn danger">${esc(error.message)}</div>` : (toast("Contactos guardados"), $("#cmsg").innerHTML = ""); };
 }
 </script></body></html>
