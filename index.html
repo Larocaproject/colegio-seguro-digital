@@ -61,7 +61,12 @@ footer{text-align:center;font-size:.84rem;color:var(--mu);padding:26px 16px;bord
 @keyframes pulse{50%{transform:scale(1.1)}}@keyframes floaty{50%{transform:translateY(-14px) rotate(4deg)}}@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes blob{50%{transform:translate(40px,30px) scale(1.15)}}@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 @keyframes glow{50%{box-shadow:0 0 0 9px #e11d4800}0%,100%{box-shadow:0 0 0 0 #e11d4855}}
-@media(max-width:640px){.hero{padding:34px 20px}.hero .floaty{display:none}.logo span{display:none}}
+/* Panel administrativo renovado */
+.admin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:10px 0 22px}.admin-head p{margin:4px 0;color:var(--mu)}
+.admin-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px;align-items:start}.admin-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.admin-tools input,.admin-tools select{min-width:0}
+.stat-card{position:relative;overflow:hidden}.stat-card:after{content:"";position:absolute;width:78px;height:78px;border-radius:50%;right:-22px;top:-22px;background:var(--l);opacity:.8}.stat-card .cnt{position:relative;z-index:1;color:var(--m)}
+.rep{cursor:pointer;border-left:4px solid var(--m);padding:17px 18px}.rep:hover{transform:translateY(-2px);border-color:var(--g)}.rep.active{border-color:var(--g);box-shadow:0 0 0 2px #10b98130}.rep-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.rep p{margin:12px 0}.admin-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.detail-panel{position:sticky;top:90px}.chat-stream{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;padding:10px 2px}.chat-msg{max-width:95%;padding:11px 13px;border-radius:14px;background:var(--l);overflow-wrap:anywhere}.chat-msg.staff-msg{align-self:flex-end;background:#d1fae5;color:#064e3b}.chat-msg small{display:block;margin-top:5px;font-size:.72rem}.code-panel{border:1px dashed var(--m);border-radius:18px;padding:18px;background:var(--l);margin:18px 0}.tracking-code{font-size:clamp(1.25rem,4vw,2rem);font-weight:800;letter-spacing:.12em;overflow-wrap:anywhere;color:var(--m)}
+@media(max-width:800px){.admin-layout{grid-template-columns:1fr}.detail-panel{position:static}}@media(max-width:640px){.hero{padding:34px 20px}.hero .floaty{display:none}.logo span{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style></head><body>
 <header><div class="bar"><a class="logo" href="#/"><svg width="34" height="34" viewBox="0 0 40 40"><path d="M20 2 6 8v10c0 9 6 17 14 20 8-3 14-11 14-20V8z" fill="#2563eb" stroke="#fff" stroke-width="2"/><path d="M13 20l5 5 10-11" fill="none" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Colegio Seguro Digital</span></a><nav id="nav"></nav><button class="tg" id="th" title="Cambiar tema">🌙</button></div></header>
@@ -84,7 +89,7 @@ const UI = {proxima:"🟢",pronta:"🟠",inmediato:"🔴"};
 const ST = {pendiente:"Pendiente",revision:"En revisión",atendido:"Atendido",descartado:"Descartado / no verificado"};
 const GR = `<option value="">Prefiero no decirlo</option>${["Primaria","6°","7°","8°","9°","10°","11°","Varios grados","No lo sé"].map(g=>`<option>${g}</option>`).join("")}`;
 const NOCFG = `<div class="warn danger"><b>Base de datos sin configurar.</b> Esta función no guardará nada hasta completar SUPABASE_URL y SUPABASE_ANON_KEY en index.html (ver README.md). Si ya los pusiste, revisa tu conexión a internet.</div>`;
-const NAV = [["#/","Inicio"],["#/reportar","Reportar"],["#/prevencion","Prevención"],["#/acerca","Acerca"],["#/contacto","Contactos"],["#/admin","Personal"]];
+const NAV = [["#/","Inicio"],["#/reportar","Reportar"],["#/prevencion","Prevención"],["#/acerca","Acerca"],["#/contacto","Contactos"],["#/seguimiento","Seguimiento"],["#/admin","Personal"]];
 
 // ---- Captcha (Cloudflare Turnstile) ----
 let capTok = null;
@@ -146,17 +151,19 @@ contacto: async () => {
   return `<h1>Contactos y ayuda</h1>${OK?"":NOCFG}<div class="card"><p><b>Colegio:</b> ${v("school_name")}</p><p><b>Horarios de atención:</b> ${v("hours")}</p><p><b>Orientador/Coordinador:</b> ${v("contact_name")}</p><p><b>Canal de contacto:</b> ${v("contact_channel")}</p></div>
 <div class="warn">Estos datos los edita el personal autorizado desde el panel. No se incluyen contactos inventados.</div>`;
 },
+seguimiento: async () => `<h1>Seguimiento de tu reporte</h1><p class="mu">Ingresa el código que recibiste al enviar el reporte para consultar novedades y escribir al personal autorizado.</p>${OK?"":NOCFG}<form id="tf" class="panel"><label style="margin-top:0">Código de seguimiento</label><div class="row"><input name="code" maxlength="32" autocomplete="off" placeholder="Pega aquí tu código" required ${OK?"":"disabled"}><button class="btn sm" type="submit" ${OK?"":"disabled"}>Consultar</button></div><div id="tmsg"></div></form><div id="thread"></div>`,
 admin: async () => {
   if (!OK) return `<h1>Panel del personal</h1>${NOCFG}`;
   const {data:{session}} = await db.auth.getSession();
   if (!session || session.user.is_anonymous) return `<h1>Panel del personal</h1><form id="lf" class="panel"><label style="margin-top:0">Correo</label><input type="email" name="e" required><label>Contraseña</label><input type="password" name="p" required><div id="cap" style="margin-top:12px"></div><button class="btn">Ingresar</button><div id="msg"></div></form>`;
   const {data:st} = await db.from("staff").select().maybeSingle();
   if (!st) return `<h1>Panel del personal</h1><div class="warn danger">Esta cuenta no está autorizada como personal del colegio.</div><button class="btn sm" id="out">Salir</button>`;
-  return `<h1>Panel del personal <button class="btn sm alt" id="out" style="border:1px solid var(--bd)">Salir</button></h1><div id="stats"></div>
-<div class="row"><input id="q" placeholder="🔎 Buscar en descripción"><select id="ft"><option value="">Todas las categorías</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
-<select id="fs"><option value="">Todos los estados</option>${Object.entries(ST).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><input type="date" id="fd1" title="Desde"><input type="date" id="fd2" title="Hasta"></div>
-<div id="list" style="margin-top:14px"></div><div id="detail"></div>
-<h2>Datos de contacto del colegio</h2><form id="cf" class="panel">${[["school_name","Nombre oficial"],["hours","Horarios"],["contact_name","Orientador/Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l],i)=>`<label ${i?"":'style="margin-top:0"'}>${l}</label><input name="${k}" maxlength="200">`).join("")}<br><button class="btn sm">Guardar contactos</button><div id="cmsg"></div></form>`;
+  return `<div class="admin-head"><div><span class="badge" style="background:var(--l);color:var(--m);border-color:var(--bd)">🔐 Área privada</span><h1 style="margin:10px 0 0">Centro de gestión</h1><p>Revisa alertas, prioriza casos y documenta el seguimiento.</p></div><button class="btn sm alt" id="out" style="border:1px solid var(--bd)">Cerrar sesión</button></div>
+ <div id="stats"></div><section class="panel"><div class="admin-section-title"><div><h2 style="margin:0">Bandeja de reportes</h2><p class="mu" style="margin:4px 0 14px">Filtra los casos y selecciona uno para ver el expediente.</p></div><button class="btn sm alt" id="refresh">↻ Actualizar</button></div>
+ <div class="admin-tools"><input id="q" placeholder="🔎 Buscar descripción"><select id="ft"><option value="">Todas las categorías</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
+ <select id="fs"><option value="">Todos los estados</option>${Object.entries(ST).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><input type="date" id="fd1" title="Desde"><input type="date" id="fd2" title="Hasta"></div></section>
+ <div class="admin-layout" style="margin-top:16px"><div id="list"></div><div id="detail"><div class="panel mu">Selecciona un reporte para ver sus detalles y el chat de seguimiento.</div></div></div>
+ <section class="panel" style="margin-top:20px"><h2 style="margin-top:0">Configuración de contacto</h2><p class="mu">Estos datos se muestran en la sección pública de Contactos.</p><form id="cf">${[["school_name","Nombre oficial"],["hours","Horarios de atención"],["contact_name","Orientador / Coordinador"],["contact_channel","Canal de contacto"]].map(([k,l],i)=>`<label ${i?"":'style="margin-top:0"'}>${l}</label><input name="${k}" maxlength="200">`).join("")}<br><button class="btn sm">Guardar cambios</button><div id="cmsg"></div></form></section>`;
 }};
 
 // ---- utilidades de interfaz ----
@@ -175,7 +182,7 @@ async function render(){
   app.innerHTML = '<div class="spin"></div>';
   try { app.innerHTML = await (pages[h] || pages[""])(); } catch(e){ app.innerHTML = `<div class="warn danger">Error: ${esc(e.message)}</div>`; return; }
   scrollTo(0,0); reveal();
-  if (h==="reportar") bindForm(); if (h==="admin") bindAdmin();
+  if (h==="reportar") bindForm(); if (h==="admin") bindAdmin(); if (h==="seguimiento") bindTracking();
 }
 $("#nav").innerHTML = NAV.map(([h,t])=>`<a href="${h}">${t}</a>`).join("");
 addEventListener("hashchange", render); render();
@@ -203,13 +210,35 @@ function bindForm(){
     let error = null;
     const {data:{session}} = await db.auth.getSession();
     if(!session){ const r = await db.auth.signInAnonymously({options:capOpts()}); error = r.error; }
-    if(!error) ({error} = await db.from("reports").insert({type:d.get("type"),place:d.get("place")==="Otro"?"Otro: "+d.get("place_other").trim():d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult"),contact:d.get("contact").trim()||null,grade_involved:d.get("grade_involved")||null,grade_reporter:d.get("grade_reporter")||null}));
+    const trackingCode = makeTrackingCode();
+    if(!error) ({error} = await db.from("reports").insert({tracking_code:trackingCode,type:d.get("type"),place:d.get("place")==="Otro"?"Otro: "+d.get("place_other").trim():d.get("place"),occurred_at:d.get("occurred_at"),description:d.get("description").trim(),urgency:d.get("urgency"),wants_adult:!!d.get("wants_adult"),contact:d.get("contact").trim()||null,grade_involved:d.get("grade_involved")||null,grade_reporter:d.get("grade_reporter")||null}));
     $("#sb").disabled = false; capReset();
     if(error){ const m = /anonymous/i.test(error.message) ? "Falta activar «Anonymous sign-ins» en Supabase (ver README)." : error.message;
       $("#msg").innerHTML = `<div class="warn danger">No se pudo enviar: ${esc(m)}. Intenta de nuevo o habla con un adulto.</div>`; }
     else { try{localStorage.setItem("csd_last",Date.now())}catch(_){} f.reset(); $("#po").hidden=true; $("#urgw").innerHTML=""; $("#cc").textContent="(0/2000)"; toast("Reporte enviado correctamente");
-      $("#msg").innerHTML = `<div class="ok"><span class="tick">✔</span> <b>Reporte enviado.</b> El personal autorizado lo revisará. Si hay peligro inmediato, busca ayuda presencial.</div>`; }
+      location.hash = "#/seguimiento?code="+encodeURIComponent(trackingCode); }
   };
+}
+
+function makeTrackingCode(){
+  const bytes=new Uint8Array(10); crypto.getRandomValues(bytes);
+  return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("").toUpperCase();
+}
+function bindTracking(){
+  const form=$("#tf"), thread=$("#thread"); if(!form) return;
+  const params=new URLSearchParams(location.hash.split("?")[1]||"");
+  if(params.get("code")) form.elements.code.value=params.get("code");
+  const lookup=async code=>{
+    thread.innerHTML='<div class="spin"></div>';
+    const {data,error}=await db.rpc("get_report_thread",{p_code:code.trim().toUpperCase()});
+    if(error||!data||data.error){thread.innerHTML=`<div class="warn danger">No encontramos ese código o no se pudo consultar. Verifica que esté escrito correctamente.</div>`;return;}
+    const r=data.report, messages=data.messages||[];
+    thread.innerHTML=`<div class="panel"><div class="code-panel"><small>Tu código de seguimiento · guárdalo para volver a entrar</small><div class="tracking-code">${esc(code.trim().toUpperCase())}</div><button class="btn sm alt" id="studentCopyCode" type="button">Copiar código</button></div><div class="rep-top"><div><span class="chip">${TI[r.type]||"📝"} ${esc(TYPES[r.type]||r.type)}</span><span class="chip ${esc(r.status)}">${esc(ST[r.status]||r.status)}</span></div><small>${new Date(r.created_at).toLocaleString("es")}</small></div><h2>Estado: ${esc(ST[r.status]||r.status)}</h2><p>${esc(r.description)}</p><small class="mu">Lugar: ${esc(r.place)} · Prioridad: ${esc(URG[r.urgency]||r.urgency)}</small><hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h3>Conversación con el colegio</h3><div class="chat-stream">${messages.map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal del colegio":"Tú"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Todavía no hay mensajes. Puedes escribir aquí para añadir información.</p>'}</div><form id="studentChat"><label>Escribir un mensaje</label><textarea name="body" maxlength="2000" required placeholder="Añade información o responde al personal…" style="min-height:90px"></textarea><button class="btn sm">Enviar mensaje</button><div id="chatmsg"></div></form></div>`;
+    $("#studentCopyCode").onclick=async()=>{try{await navigator.clipboard.writeText(code.trim().toUpperCase());toast("Código copiado");}catch(_){toast("No se pudo copiar el código","err");}};
+    $("#studentChat").onsubmit=async ev=>{ev.preventDefault();const b=ev.currentTarget.body.value.trim();if(!b)return;const btn=ev.currentTarget.querySelector("button");btn.disabled=true;const {data:sent,error}=await db.rpc("send_report_message",{p_code:code.trim().toUpperCase(),p_body:b});btn.disabled=false;if(error||sent?.error){$("#chatmsg").innerHTML=`<div class="warn danger">No se pudo enviar el mensaje. Intenta de nuevo.</div>`;return;}await lookup(code);};
+  };
+  form.onsubmit=async ev=>{ev.preventDefault();const code=form.elements.code.value.trim().toUpperCase();if(!code)return;await lookup(code);};
+  if(form.elements.code.value) lookup(form.elements.code.value);
 }
 
 function bindAdmin(){
@@ -227,17 +256,23 @@ function bindAdmin(){
     if($("#q").value.trim()) q=q.ilike("description","%"+$("#q").value.trim().replace(/[%,]/g," ")+"%");
     const {data,error} = await q; if(error) return $("#list").innerHTML=`<div class="warn danger">${esc(error.message)}</div>`;
     $("#list").innerHTML = data.length ? data.map(r=>`<div class="card rep" data-id="${r.id}" style="margin-bottom:12px"><span class="chip">${TI[r.type]} ${TYPES[r.type]}</span><span class="chip ${r.status}">${ST[r.status]}</span><span class="chip ${r.urgency}">${URG[r.urgency]}</span>${r.wants_adult?'<span class="chip">Pide adulto</span>':""}${r.grade_involved?`<span class="chip">Grado: ${esc(r.grade_involved)}</span>`:""}<p>${esc(r.description.slice(0,140))}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)}</small></div>`).join("") : "<p class='mu'>No hay reportes con esos filtros.</p>";
-    document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>open(data.find(r=>r.id===c.dataset.id))); reveal();
+    document.querySelectorAll(".rep").forEach(c=>c.onclick=()=>{document.querySelectorAll(".rep").forEach(x=>x.classList.remove("active"));c.classList.add("active");open(data.find(r=>r.id===c.dataset.id));}); reveal();
   };
   const stats = async()=>{ const {data} = await db.rpc("report_stats"); if(!data) return;
     $("#stats").innerHTML = `<div class="grid"><div class="card"><h3 class="cnt" data-n="${data.total}">0</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3 class="cnt" data-n="${data.por_estado[k]||0}">0</h3>${v}</div>`).join("")}</div>`; countUp(); reveal(); };
   const open = async r => {
     const {data:ns} = await db.from("notes").select().eq("report_id",r.id).order("created_at");
-    $("#detail").innerHTML = `<div class="panel" style="margin-top:14px"><h3>${TI[r.type]} ${TYPES[r.type]}</h3><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
+    const {data:msgs} = await db.from("report_messages").select().eq("report_id",r.id).order("created_at");
+    $("#detail").innerHTML = `<div class="panel detail-panel"><div class="admin-section-title"><h3 style="margin:0">Expediente del caso</h3><span class="chip ${r.status}">${ST[r.status]}</span></div><p><b>${TI[r.type]} ${TYPES[r.type]}</b></p><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
 <p class="mu">Grado involucrado: <b>${esc(r.grade_involved||"no indicado")}</b> · Grado de quien reporta: <b>${esc(r.grade_reporter||"no indicado")}</b> · Contacto: <b>${esc(r.contact||"no dejó contacto")}</b> · ${r.wants_adult?"Pide hablar con un adulto":"No pidió adulto"}</p>
 <label>Estado</label><select id="ns">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k===r.status?"selected":""}>${v}</option>`).join("")}</select>
-<h4>Notas privadas</h4>${(ns||[]).map(n=>`<div class="chip" style="display:block;border-radius:12px;padding:8px 12px">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas.</small>"}
-<textarea id="nb" placeholder="Nueva nota de seguimiento" style="min-height:70px;margin:8px 0"></textarea><button class="btn sm" id="sn">Guardar nota</button><hr style="margin:18px 0;border:0;border-top:1px solid var(--bd)"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
+<div class="code-panel"><small>Código de seguimiento del estudiante</small><div class="tracking-code">${esc(r.tracking_code||"Sin código")}</div><button class="btn sm alt" id="copycode" type="button">Copiar código</button></div>
+<h4>Notas internas (solo personal)</h4>${(ns||[]).map(n=>`<div class="chip" style="display:block;border-radius:12px;padding:8px 12px">${esc(n.body)}<br><small>${new Date(n.created_at).toLocaleString("es")}</small></div>`).join("")||"<small>Sin notas internas.</small>"}
+<textarea id="nb" placeholder="Nota privada para el equipo" style="min-height:70px;margin:8px 0"></textarea><button class="btn sm" id="sn">Guardar nota privada</button>
+<hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h4>Chat de seguimiento con el estudiante</h4><div class="chat-stream">${(msgs||[]).map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal":"Estudiante"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Sin mensajes todavía.</p>'}</div><textarea id="reply" placeholder="Responder al estudiante…" maxlength="2000" style="min-height:80px;margin:8px 0"></textarea><button class="btn sm" id="sendreply">Enviar respuesta</button>
+<hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
+    $("#copycode").onclick=async()=>{try{await navigator.clipboard.writeText(r.tracking_code||"");toast("Código copiado");}catch(_){toast("No se pudo copiar el código","err");}};
+    $("#sendreply").onclick=async()=>{const b=$("#reply").value.trim();if(!b)return;const {error}=await db.from("report_messages").insert({report_id:r.id,body:b,sender_role:"staff"});error?toast(error.message,"err"):(toast("Respuesta enviada"),open(r));};
     $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?toast(error.message,"err"):(toast("Estado actualizado"),load(),stats()); };
     $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?toast(error.message,"err"):(toast("Nota guardada"),open(r)); };
     $("#del").onclick = async()=>{
@@ -249,6 +284,7 @@ function bindAdmin(){
     reveal(); $("#detail").scrollIntoView({behavior:"smooth"});
   };
   ["q","ft","fs","fd1","fd2"].forEach(i=>$("#"+i).oninput=load);
+  $("#refresh").onclick=()=>{load();stats();};
   load(); stats();
   db.from("school_settings").select().then(({data})=>(data||[]).forEach(r=>{const i=$("#cf")?.elements[r.key]; if(i) i.value=r.value||"";}));
   $("#cf").onsubmit = async ev => { ev.preventDefault();
