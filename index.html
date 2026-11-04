@@ -226,6 +226,7 @@ function makeTrackingCode(){
 }
 function bindTracking(){
   const form=$("#tf"), thread=$("#thread"); if(!form) return;
+  let trackingChannel=null, activeCode="", lookupBusy=false;
   const params=new URLSearchParams(location.hash.split("?")[1]||"");
   if(params.get("code")) form.elements.code.value=params.get("code");
   const lookup=async code=>{
@@ -233,6 +234,13 @@ function bindTracking(){
     const {data,error}=await db.rpc("get_report_thread",{p_code:code.trim().toUpperCase()});
     if(error||!data||data.error){thread.innerHTML=`<div class="warn danger">No encontramos ese código o no se pudo consultar. Verifica que esté escrito correctamente.</div>`;return;}
     const r=data.report, messages=data.messages||[];
+    activeCode=code.trim().toUpperCase();
+    if(trackingChannel) await db.removeChannel(trackingChannel);
+    trackingChannel=db.channel("student-followup-"+r.id)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"report_messages",filter:"report_id=eq."+r.id},async payload=>{
+        if(payload.new && payload.new.sender_role!=="student") await lookup(activeCode);
+      })
+      .subscribe();
     thread.innerHTML=`<div class="panel"><div class="code-panel"><small>Tu código de seguimiento · guárdalo para volver a entrar</small><div class="tracking-code">${esc(code.trim().toUpperCase())}</div><button class="btn sm alt" id="studentCopyCode" type="button">Copiar código</button></div><div class="rep-top"><div><span class="chip">${TI[r.type]||"📝"} ${esc(TYPES[r.type]||r.type)}</span><span class="chip ${esc(r.status)}">${esc(ST[r.status]||r.status)}</span></div><small>${new Date(r.created_at).toLocaleString("es")}</small></div><h2>Estado: ${esc(ST[r.status]||r.status)}</h2><p>${esc(r.description)}</p><small class="mu">Lugar: ${esc(r.place)} · Prioridad: ${esc(URG[r.urgency]||r.urgency)}</small><hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h3>Conversación con el colegio</h3><div class="chat-stream">${messages.map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal del colegio":"Tú"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Todavía no hay mensajes. Puedes escribir aquí para añadir información.</p>'}</div><form id="studentChat"><label>Escribir un mensaje</label><textarea name="body" maxlength="2000" required placeholder="Añade información o responde al personal…" style="min-height:90px"></textarea><button class="btn sm">Enviar mensaje</button><div id="chatmsg"></div></form></div>`;
     $("#studentCopyCode").onclick=async()=>{try{await navigator.clipboard.writeText(code.trim().toUpperCase());toast("Código copiado");}catch(_){toast("No se pudo copiar el código","err");}};
     $("#studentChat").onsubmit=async ev=>{ev.preventDefault();const b=ev.currentTarget.body.value.trim();if(!b)return;const btn=ev.currentTarget.querySelector("button");btn.disabled=true;const {data:sent,error}=await db.rpc("send_report_message",{p_code:code.trim().toUpperCase(),p_body:b});btn.disabled=false;if(error||sent?.error){$("#chatmsg").innerHTML=`<div class="warn danger">No se pudo enviar el mensaje. Intenta de nuevo.</div>`;return;}await lookup(code);};
@@ -249,6 +257,7 @@ function bindAdmin(){
     const {error} = await db.auth.signInWithPassword({email:lf.e.value,password:lf.p.value,options:capOpts()});
     if(error){ capReset(); $("#msg").innerHTML = `<div class="warn danger">${esc(error.message)}</div>`; } else render(); }; }
   if (!$("#list")) return;
+  let adminChatChannel=null, selectedReportId=null;
   const load = async () => {
     let q = db.from("reports").select().order("created_at",{ascending:false});
     if($("#ft").value) q=q.eq("type",$("#ft").value); if($("#fs").value) q=q.eq("status",$("#fs").value);
@@ -261,6 +270,8 @@ function bindAdmin(){
   const stats = async()=>{ const {data} = await db.rpc("report_stats"); if(!data) return;
     $("#stats").innerHTML = `<div class="grid"><div class="card"><h3 class="cnt" data-n="${data.total}">0</h3>Reportes</div>${Object.entries(ST).map(([k,v])=>`<div class="card"><h3 class="cnt" data-n="${data.por_estado[k]||0}">0</h3>${v}</div>`).join("")}</div>`; countUp(); reveal(); };
   const open = async r => {
+    selectedReportId=r.id;
+    if(adminChatChannel) await db.removeChannel(adminChatChannel);
     const {data:ns} = await db.from("notes").select().eq("report_id",r.id).order("created_at");
     const {data:msgs} = await db.from("report_messages").select().eq("report_id",r.id).order("created_at");
     $("#detail").innerHTML = `<div class="panel detail-panel"><div class="admin-section-title"><h3 style="margin:0">Expediente del caso</h3><span class="chip ${r.status}">${ST[r.status]}</span></div><p><b>${TI[r.type]} ${TYPES[r.type]}</b></p><p>${esc(r.description)}</p><small>${new Date(r.created_at).toLocaleString("es")} · ${esc(r.place)} · ocurrió: ${esc(r.occurred_at)}</small>
@@ -272,7 +283,15 @@ function bindAdmin(){
 <hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h4>Chat de seguimiento con el estudiante</h4><div class="chat-stream">${(msgs||[]).map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal":"Estudiante"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Sin mensajes todavía.</p>'}</div><textarea id="reply" placeholder="Responder al estudiante…" maxlength="2000" style="min-height:80px;margin:8px 0"></textarea><button class="btn sm" id="sendreply">Enviar respuesta</button>
 <hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><button class="btn sm danger-btn" id="del">🗑️ Eliminar reporte</button></div>`;
     $("#copycode").onclick=async()=>{try{await navigator.clipboard.writeText(r.tracking_code||"");toast("Código copiado");}catch(_){toast("No se pudo copiar el código","err");}};
-    $("#sendreply").onclick=async()=>{const b=$("#reply").value.trim();if(!b)return;const {error}=await db.from("report_messages").insert({report_id:r.id,body:b,sender_role:"staff"});error?toast(error.message,"err"):(toast("Respuesta enviada"),open(r));};
+    $("#sendreply").onclick=async()=>{const b=$("#reply").value.trim();if(!b)return;const btn=$("#sendreply");btn.disabled=true;const {error}=await db.from("report_messages").insert({report_id:r.id,body:b,sender_role:"staff"});btn.disabled=false;error?toast(error.message,"err"):(toast("Respuesta enviada"),$("#reply").value="");};
+    adminChatChannel=db.channel("admin-followup-"+r.id)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"report_messages",filter:"report_id=eq."+r.id},async payload=>{
+        if(payload.new && payload.new.sender_role==="student" && selectedReportId===r.id){
+          const {data:latest}=await db.from("report_messages").select().eq("report_id",r.id).order("created_at");
+          const stream=$("#detail .chat-stream");
+          if(stream) stream.innerHTML=(latest||[]).map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal":"Estudiante"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Sin mensajes todavía.</p>';
+        }
+      }).subscribe();
     $("#ns").onchange = async()=>{ const {error}=await db.from("reports").update({status:$("#ns").value}).eq("id",r.id); error?toast(error.message,"err"):(toast("Estado actualizado"),load(),stats()); };
     $("#sn").onclick = async()=>{ const b=$("#nb").value.trim(); if(!b) return; const {error}=await db.from("notes").insert({report_id:r.id,body:b}); error?toast(error.message,"err"):(toast("Nota guardada"),open(r)); };
     $("#del").onclick = async()=>{
