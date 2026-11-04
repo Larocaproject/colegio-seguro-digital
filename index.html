@@ -229,6 +229,19 @@ function bindTracking(){
   let trackingChannel=null, activeCode="", activeReportId=null;
   const params=new URLSearchParams(location.hash.split("?")[1]||"");
   if(params.get("code")) form.elements.code.value=params.get("code");
+  const renderMessages=messages=>messages.map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal del colegio":"Tú"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Todavía no hay mensajes. Puedes escribir aquí para añadir información.</p>';
+  // Actualiza únicamente el historial del chat; conserva el formulario y el resto de la pantalla.
+  const refreshMessages=async()=>{
+    if(!activeCode) return;
+    const code=activeCode;
+    const {data,error}=await db.rpc("get_report_thread",{p_code:code});
+    if(error||!data||data.error||code!==activeCode) return;
+    const stream=thread.querySelector(".chat-stream");
+    if(!stream) return;
+    const wasNearBottom=stream.scrollHeight-stream.scrollTop-stream.clientHeight<80;
+    stream.innerHTML=renderMessages(data.messages||[]);
+    if(wasNearBottom) stream.scrollTop=stream.scrollHeight;
+  };
   const lookup=async code=>{
     thread.innerHTML='<div class="spin"></div>';
     const {data,error}=await db.rpc("get_report_thread",{p_code:code.trim().toUpperCase()});
@@ -246,7 +259,7 @@ function bindTracking(){
       // mediante la RPC get_report_thread, que valida el código.
       trackingChannel=db.channel("followup:"+activeCode,{config:{private:false}})
         .on("broadcast",{event:"new_message"},async()=>{
-          if(activeCode) await lookup(activeCode);
+          await refreshMessages();
         })
         .subscribe(status=>{
           if(status==="SUBSCRIBED") {
@@ -256,9 +269,9 @@ function bindTracking(){
           }
         });
     }
-    thread.innerHTML=`<div class="panel"><div class="code-panel"><small>Tu código de seguimiento · guárdalo para volver a entrar</small><div class="tracking-code">${esc(code.trim().toUpperCase())}</div><button class="btn sm alt" id="studentCopyCode" type="button">Copiar código</button></div><div class="rep-top"><div><span class="chip">${TI[r.type]||"📝"} ${esc(TYPES[r.type]||r.type)}</span><span class="chip ${esc(r.status)}">${esc(ST[r.status]||r.status)}</span></div><small>${new Date(r.created_at).toLocaleString("es")}</small></div><h2>Estado: ${esc(ST[r.status]||r.status)}</h2><p>${esc(r.description)}</p><small class="mu">Lugar: ${esc(r.place)} · Prioridad: ${esc(URG[r.urgency]||r.urgency)}</small><hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h3>Conversación con el colegio</h3><div class="chat-stream">${messages.map(m=>`<div class="chat-msg ${m.sender_role==="staff"?"staff-msg":""}"><b>${m.sender_role==="staff"?"Personal del colegio":"Tú"}</b><div>${esc(m.body)}</div><small>${new Date(m.created_at).toLocaleString("es")}</small></div>`).join("")||'<p class="mu">Todavía no hay mensajes. Puedes escribir aquí para añadir información.</p>'}</div><form id="studentChat"><label>Escribir un mensaje</label><textarea name="body" maxlength="2000" required placeholder="Añade información o responde al personal…" style="min-height:90px"></textarea><button class="btn sm">Enviar mensaje</button><div id="chatmsg"></div></form></div>`;
+    thread.innerHTML=`<div class="panel"><div class="code-panel"><small>Tu código de seguimiento · guárdalo para volver a entrar</small><div class="tracking-code">${esc(code.trim().toUpperCase())}</div><button class="btn sm alt" id="studentCopyCode" type="button">Copiar código</button></div><div class="rep-top"><div><span class="chip">${TI[r.type]||"📝"} ${esc(TYPES[r.type]||r.type)}</span><span class="chip ${esc(r.status)}">${esc(ST[r.status]||r.status)}</span></div><small>${new Date(r.created_at).toLocaleString("es")}</small></div><h2>Estado: ${esc(ST[r.status]||r.status)}</h2><p>${esc(r.description)}</p><small class="mu">Lugar: ${esc(r.place)} · Prioridad: ${esc(URG[r.urgency]||r.urgency)}</small><hr style="margin:20px 0;border:0;border-top:1px solid var(--bd)"><h3>Conversación con el colegio</h3><div class="chat-stream">${renderMessages(messages)}</div><form id="studentChat"><label>Escribir un mensaje</label><textarea name="body" maxlength="2000" required placeholder="Añade información o responde al personal…" style="min-height:90px"></textarea><button class="btn sm">Enviar mensaje</button><div id="chatmsg"></div></form></div>`;
     $("#studentCopyCode").onclick=async()=>{try{await navigator.clipboard.writeText(code.trim().toUpperCase());toast("Código copiado");}catch(_){toast("No se pudo copiar el código","err");}};
-    $("#studentChat").onsubmit=async ev=>{ev.preventDefault();const b=ev.currentTarget.body.value.trim();if(!b)return;const btn=ev.currentTarget.querySelector("button");btn.disabled=true;const {data:sent,error}=await db.rpc("send_report_message",{p_code:code.trim().toUpperCase(),p_body:b});btn.disabled=false;if(error||sent?.error){$("#chatmsg").innerHTML=`<div class="warn danger">No se pudo enviar el mensaje. Intenta de nuevo.</div>`;return;}await lookup(code);};
+    $("#studentChat").onsubmit=async ev=>{ev.preventDefault();const chatForm=ev.currentTarget;const b=chatForm.elements.body.value.trim();if(!b)return;const btn=chatForm.querySelector("button");btn.disabled=true;const {data:sent,error}=await db.rpc("send_report_message",{p_code:code.trim().toUpperCase(),p_body:b});btn.disabled=false;if(error||sent?.error){chatForm.querySelector("#chatmsg").innerHTML=`<div class="warn danger">No se pudo enviar el mensaje. Intenta de nuevo.</div>`;return;}chatForm.reset();await refreshMessages();};
   };
   form.onsubmit=async ev=>{ev.preventDefault();const code=form.elements.code.value.trim().toUpperCase();if(!code)return;await lookup(code);};
   if(form.elements.code.value) lookup(form.elements.code.value);
